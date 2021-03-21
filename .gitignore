@@ -361,3 +361,6 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+/RamsgateDigitalCinema/appsettings.json
+/RamsgateDigitalCinema/appsettings.Development.json
