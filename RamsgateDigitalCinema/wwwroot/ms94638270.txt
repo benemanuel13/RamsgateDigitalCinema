@@ -1,0 +1,5 @@
+﻿{
+  "Description": "Domain ownership verification file for Microsoft 365 - place in the website root",
+  "Domain": "ramsgatedigitalcinema.azurewebsites.net",
+  "Id": "1f22141d-e209-4ac1-944f-06a6e58d38ac"
+}
