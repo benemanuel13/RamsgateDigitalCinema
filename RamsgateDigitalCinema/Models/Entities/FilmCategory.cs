@@ -10,5 +10,7 @@ namespace RamsgateDigitalCinema.Models.Entities
         public int FilmCategoryID { get; set; }
 
         public string Description { get; set; }
+
+        public bool IsViewable { get; set; }
     }
 }

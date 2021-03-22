@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RamsgateDigitalCinema.Data;
 
 namespace RamsgateDigitalCinema.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210321162700_FilmDetails-Added")]
+    partial class FilmDetailsAdded
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -229,9 +231,6 @@ namespace RamsgateDigitalCinema.Data.Migrations
                     b.Property<bool>("AssetCreated")
                         .HasColumnType("bit");
 
-                    b.Property<int>("FilmCategoryID")
-                        .HasColumnType("int");
-
                     b.Property<int?>("FilmCollectionID")
                         .HasColumnType("int");
 
@@ -249,8 +248,6 @@ namespace RamsgateDigitalCinema.Data.Migrations
 
                     b.HasKey("FilmID");
 
-                    b.HasIndex("FilmCategoryID");
-
                     b.HasIndex("FilmCollectionID");
 
                     b.ToTable("Films");
@@ -266,9 +263,6 @@ namespace RamsgateDigitalCinema.Data.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("IsViewable")
-                        .HasColumnType("bit");
-
                     b.HasKey("FilmCategoryID");
 
                     b.ToTable("FilmCategories");
@@ -280,9 +274,6 @@ namespace RamsgateDigitalCinema.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<int>("FilmID")
-                        .HasColumnType("int");
 
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
@@ -531,17 +522,9 @@ namespace RamsgateDigitalCinema.Data.Migrations
 
             modelBuilder.Entity("RamsgateDigitalCinema.Models.Entities.Film", b =>
                 {
-                    b.HasOne("RamsgateDigitalCinema.Models.Entities.FilmCategory", "FilmCategory")
-                        .WithMany()
-                        .HasForeignKey("FilmCategoryID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("RamsgateDigitalCinema.Models.Entities.FilmCollection", "FilmCollection")
                         .WithMany("Films")
                         .HasForeignKey("FilmCollectionID");
-
-                    b.Navigation("FilmCategory");
 
                     b.Navigation("FilmCollection");
                 });

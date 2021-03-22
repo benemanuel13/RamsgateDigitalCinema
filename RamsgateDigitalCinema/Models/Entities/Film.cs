@@ -31,5 +31,9 @@ namespace RamsgateDigitalCinema.Models.Entities
         public FilmCollection FilmCollection { get; set; }
 
         public Rating Rating { get; set; }
+
+        public int FilmCategoryID { get; set; }
+        [ForeignKey("FilmCategoryID")]
+        public FilmCategory FilmCategory { get; set; }
     }
 }

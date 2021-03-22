@@ -23,9 +23,7 @@ namespace RamsgateDigitalCinema.Controllers
 
         public bool UserAuthenticated => User.Identity.IsAuthenticated;
 
-        public string LoggedInUserASPID;
-
-        public bool LoggedIn { get; private set; } = false;
+        public string LoggedInUserASPID { get; private set; }
 
         public IdentityUser ASPUser => _userManager.GetUserAsync(HttpContext.User).Result;
 
@@ -44,12 +42,10 @@ namespace RamsgateDigitalCinema.Controllers
             {
                 LoggedInUserASPID = _userManager.GetUserAsync(accessor.HttpContext.User).Result?.Id;
                 CurrentMember = db.Members.Where(m => m.ASPID == LoggedInUserASPID).FirstOrDefault();
-
-                LoggedIn = true;
             }
             catch
             {
-                LoggedIn = false;
+                
             }
         }
 

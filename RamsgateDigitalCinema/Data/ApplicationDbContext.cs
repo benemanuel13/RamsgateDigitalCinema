@@ -21,6 +21,8 @@ namespace RamsgateDigitalCinema.Data
         public DbSet<Film> Films { get; set; }
         public DbSet<FilmCollection> FilmCollections { get; set; }
 
+        public DbSet<FilmDetails> FilmDetails { get; set; }
+
         public DbSet<MemberFilm> MemberFilms { get; set; }
 
 
