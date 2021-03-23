@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RamsgateDigitalCinema.Data;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
@@ -8,6 +9,13 @@ namespace RamsgateDigitalCinema.Models.Entities
 {
     public class FilmCollection
     {
+        ApplicationDbContext db;
+
+        public FilmCollection(ApplicationDbContext context)
+        {
+            db = context;
+        }
+
         public int FilmCollectionID { get; set; }
 
         public int FilmID { get; set; }
@@ -18,5 +26,15 @@ namespace RamsgateDigitalCinema.Models.Entities
         public string Name { get; set; }
 
         public virtual List<Film> Films { get; set; }
+
+        [NotMapped]
+        public List<Film> FilteredFilms
+        {
+            get {
+                FilmCategory cat = db.FilmCategories.Where(fc => fc.Description != Film.SHORT_COLLECTION).FirstOrDefault();
+
+                return Films.Where(f => f.FilmCategoryID != cat.FilmCategoryID).ToList();
+            }
+        }
     }
 }

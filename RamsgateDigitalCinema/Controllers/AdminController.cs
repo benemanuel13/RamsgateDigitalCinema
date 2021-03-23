@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 
 using Microsoft.EntityFrameworkCore;
 using System.IO;
+using Microsoft.Extensions.Configuration;
 
 namespace RamsgateDigitalCinema.Controllers
 {
@@ -26,10 +27,12 @@ namespace RamsgateDigitalCinema.Controllers
     public class AdminController : ControllerBase
     {
         private readonly ApplicationDbContext db;
+        IConfiguration config;
 
-        public AdminController(ApplicationDbContext context)
+        public AdminController(IConfiguration config, ApplicationDbContext context)
         {
             db = context;
+            this.config = config;
         }
 
         [HttpGet("GetFilmCategories")]
@@ -54,6 +57,7 @@ namespace RamsgateDigitalCinema.Controllers
             }
 
             original.Description = cat.Description;
+            original.IsViewable = cat.IsViewable;
             db.SaveChanges();
 
             return original;
@@ -82,7 +86,20 @@ namespace RamsgateDigitalCinema.Controllers
                 db.FilmCollections.Add(col);
                 db.SaveChanges();
 
-                return col;
+                FilmCategory cat = db.FilmCategories.Where(fc => fc.Description == Film.SHORT_COLLECTION).FirstOrDefault();
+                Film newFilm = new Film()
+                {
+                    FilmCategoryID = cat.FilmCategoryID,
+                    FilmCollectionID = col.FilmCollectionID
+                };
+
+                db.Films.Add(newFilm);
+                db.SaveChanges();
+
+                col.FilmID = newFilm.FilmID;
+                db.SaveChanges();
+
+                return original;
             }
 
             original.Name = col.Name;
@@ -124,6 +141,13 @@ namespace RamsgateDigitalCinema.Controllers
             original.Title = film.Title;
             original.Rating = film.Rating;
             original.Showing = film.Showing;
+            original.Uploaded = film.Uploaded;
+            original.RemoteFileName = film.RemoteFileName;
+            original.AssetCreated = film.AssetCreated;
+
+            original.FilmCollectionID = film.FilmCollectionID;
+            original.FilmCategoryID = film.FilmCategoryID;
+
             db.SaveChanges();
 
             return original;
@@ -306,6 +330,76 @@ namespace RamsgateDigitalCinema.Controllers
             db.SaveChanges();
 
             return filmDetails.FilmDetailsID.ToString();
+        }
+
+        [HttpGet("GetFilm")]
+        public Film GetFilm(int id)
+        {
+            Film film = db.Films.Find(id);
+
+            return film;
+        }
+
+        [HttpPost("PostFilmFile")]
+        [RequestSizeLimit(41201000000)]
+        public string PostFilmFile()
+        {
+            try
+            {
+                string folder = AppDomain.CurrentDomain.BaseDirectory + "wwwroot\\" + config.GetSection("UploadPath").Value + "\\";
+
+                if (!Directory.Exists(folder))
+                {
+                    Directory.CreateDirectory(folder);
+                }
+
+                var memstream = new MemoryStream();
+                HttpContext.Request.Body.CopyTo(memstream);
+
+                memstream.Seek(0, SeekOrigin.Begin);
+
+                string myFileName = HttpContext.Request.Headers["Filename"];
+
+                FileStream stream = null;
+
+                string first = HttpContext.Request.Headers["First"];
+
+                if (first == "true")
+                {
+                    stream = new FileStream(folder + myFileName, FileMode.Create);
+                }
+                else
+                {
+                    stream = new FileStream(folder + myFileName, FileMode.Append);
+                }
+
+                long bytesCopied = 0;
+                long chunkSize = long.Parse(HttpContext.Request.Headers["ChunkSize"]);
+                long length = long.Parse(HttpContext.Request.Headers["Length"]);
+                byte[] buffer = new byte[chunkSize];
+
+                while (bytesCopied < length)
+                {
+                    int read = 0;
+
+                    read = memstream.Read(buffer, (int)bytesCopied, (int)(length - bytesCopied));
+
+                    stream.Write(buffer, (int)(bytesCopied), (int)read);
+
+                    bytesCopied += read;
+                }
+
+                memstream.Close();
+
+                stream.Flush();
+                stream.Close();
+            }
+            catch (Exception ex)
+            {
+                return ex.Message;
+            }
+
+            return "OK";
         }
     }
 }

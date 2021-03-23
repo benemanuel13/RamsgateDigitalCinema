@@ -55,6 +55,10 @@ namespace RamsgateDigitalCinema
 
             services.AddSingleton<IEmailSender, EmailSender>();
 
+            services.Configure<IISServerOptions>(options => {
+                options.AllowSynchronousIO = true;
+            });
+
             services.Configure<FormOptions>(x => {
                 x.ValueLengthLimit = int.MaxValue;
                 x.MultipartBodyLengthLimit = int.MaxValue;

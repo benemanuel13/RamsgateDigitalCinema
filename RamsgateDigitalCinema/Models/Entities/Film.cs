@@ -17,6 +17,9 @@ namespace RamsgateDigitalCinema.Models.Entities
 
     public class Film
     {
+        [NotMapped]
+        public static string SHORT_COLLECTION = "Short Collection";
+
         public int FilmID { get; set; }
 
         public bool Uploaded { get; set; }
@@ -25,6 +28,10 @@ namespace RamsgateDigitalCinema.Models.Entities
         public string Title { get; set; }
 
         public DateTime Showing { get; set; }
+
+        [NotMapped]
+        public FilmDetails FilmDetails { get; set; }
+
 
         public int? FilmCollectionID { get; set; }
         [ForeignKey("FilmCollectionID")]
@@ -35,5 +42,7 @@ namespace RamsgateDigitalCinema.Models.Entities
         public int FilmCategoryID { get; set; }
         [ForeignKey("FilmCategoryID")]
         public FilmCategory FilmCategory { get; set; }
+
+        public string RemoteFileName { get; set; }
     }
 }
