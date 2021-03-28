@@ -44,5 +44,7 @@ namespace RamsgateDigitalCinema.Models.Entities
         public FilmCategory FilmCategory { get; set; }
 
         public string RemoteFileName { get; set; }
+
+        public string AssetName { get; set; }
     }
 }

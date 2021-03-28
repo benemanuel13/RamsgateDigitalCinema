@@ -145,6 +145,8 @@ namespace RamsgateDigitalCinema.Controllers
             original.RemoteFileName = film.RemoteFileName;
             original.AssetCreated = film.AssetCreated;
 
+            original.AssetName = film.AssetName;
+
             original.FilmCollectionID = film.FilmCollectionID;
             original.FilmCategoryID = film.FilmCategoryID;
 
@@ -400,6 +402,18 @@ namespace RamsgateDigitalCinema.Controllers
             }
 
             return "OK";
+        }
+
+        [HttpGet("DeleteFilmFile")]
+        public string DeleteFilmFile(int id)
+        {
+            Film film = db.Films.Find(id);
+
+            string path = AppDomain.CurrentDomain.BaseDirectory + "wwwroot\\" + config.GetSection("UploadPath").Value + "\\" + film.RemoteFileName;
+
+            System.IO.File.Delete(path);
+
+            return "SUCCESS";
         }
     }
 }
