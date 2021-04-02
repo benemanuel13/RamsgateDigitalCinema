@@ -115,11 +115,11 @@ namespace RamsgateDigitalCinema.Controllers
 
             if (id == 0)
             {
-                films = db.Films.Where(f => f.FilmCollectionID != 0).ToList();
+                films = db.Films.Include(f => f.FilmCategory).Include(f => f.FilmCollection).Where(f => f.FilmCollectionID != 0).ToList();
             }
             else
             {
-                films = db.Films.Where(f => f.FilmCollectionID == id).ToList();
+                films = db.Films.Include(f => f.FilmCategory).Include(f => f.FilmCollection).Where(f => f.FilmCollectionID == id).ToList();
             }
 
             return films;
@@ -415,5 +415,35 @@ namespace RamsgateDigitalCinema.Controllers
 
             return "SUCCESS";
         }
+
+        [HttpGet("GetBlockedFilms")]
+        public List<Country> GetBlockedFilms(int id)
+        {
+            var countries = db.Countries.Join(db.BlockedFilms, c => c.CountryID, bf => bf.CountryID, (c, bf) => new { Country = c, FilmID = bf.FilmID }).Where(x => x.FilmID == id).Select(x => x.Country).ToList();
+
+            return countries;
+        }
+
+        [HttpPost("PostBlockedCountries")]
+        public void PostBlockedCountries(int id, [FromBody] List<Country> countries)
+        {
+            var blocked = db.BlockedFilms.Where(b => b.FilmID == id).ToList();
+
+            db.BlockedFilms.RemoveRange(blocked);
+
+            foreach (var country in countries)
+            {
+                BlockedFilm block = new BlockedFilm() { 
+                    FilmID = id,
+                    CountryID = country.CountryID
+                };
+
+                db.BlockedFilms.Add(block);
+            }
+
+            db.SaveChanges();
+        }
+
+
     }
 }

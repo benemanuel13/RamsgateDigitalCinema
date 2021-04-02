@@ -30,6 +30,21 @@ namespace RamsgateDigitalCinema.Controllers
 
             ViewBag.Country = await GetLocation();
 
+            if (User.Identity.IsAuthenticated)
+            {
+                var member = db.Members.Find(CurrentMember.MemberID);
+                member.LastLoggedIn = DateTime.Now;
+                db.SaveChanges();
+
+                return RedirectToAction("Index", "Members");
+            }
+
+            if (string.IsNullOrEmpty(HttpContext.Session.GetString("ShownIntro")))
+            {
+                ViewBag.ShowIntro = true;
+                HttpContext.Session.SetString("ShownIntro", "True");
+            }
+            
             return View();
         }
 

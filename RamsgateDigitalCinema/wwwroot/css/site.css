@@ -108,3 +108,12 @@ body {
         height: 100px;
     }
 }
+
+.intro {
+    background-color: #000000;
+}
+
+.introimage {
+    max-width: 100%;
+    max-height: 100%;
+}

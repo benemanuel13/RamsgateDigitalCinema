@@ -46,5 +46,10 @@ namespace RamsgateDigitalCinema.Models.Entities
         public string RemoteFileName { get; set; }
 
         public string AssetName { get; set; }
+
+        public string Source { get; set; }
+
+        public int Booked { get; set; }
+        public int Watched { get; set; }
     }
 }

@@ -219,6 +219,45 @@ namespace RamsgateDigitalCinema.Data.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
+            modelBuilder.Entity("RamsgateDigitalCinema.Models.Entities.BlockedFilm", b =>
+                {
+                    b.Property<int>("BlockedFilmID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("CountryID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FilmID")
+                        .HasColumnType("int");
+
+                    b.HasKey("BlockedFilmID");
+
+                    b.ToTable("BlockedFilms");
+                });
+
+            modelBuilder.Entity("RamsgateDigitalCinema.Models.Entities.Donation", b =>
+                {
+                    b.Property<int>("DonationID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("FilmID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MemberID")
+                        .HasColumnType("int");
+
+                    b.HasKey("DonationID");
+
+                    b.ToTable("Donations");
+                });
+
             modelBuilder.Entity("RamsgateDigitalCinema.Models.Entities.Film", b =>
                 {
                     b.Property<int>("FilmID")
@@ -231,6 +270,9 @@ namespace RamsgateDigitalCinema.Data.Migrations
 
                     b.Property<string>("AssetName")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Booked")
+                        .HasColumnType("int");
 
                     b.Property<int>("FilmCategoryID")
                         .HasColumnType("int");
@@ -247,11 +289,17 @@ namespace RamsgateDigitalCinema.Data.Migrations
                     b.Property<DateTime>("Showing")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("Source")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Title")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("Uploaded")
                         .HasColumnType("bit");
+
+                    b.Property<int>("Watched")
+                        .HasColumnType("int");
 
                     b.HasKey("FilmID");
 
@@ -396,6 +444,9 @@ namespace RamsgateDigitalCinema.Data.Migrations
 
                     b.Property<int>("MemberID")
                         .HasColumnType("int");
+
+                    b.Property<string>("Token")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("MemberFilmID");
 

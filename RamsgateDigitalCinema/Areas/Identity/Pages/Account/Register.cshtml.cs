@@ -13,6 +13,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
+using RamsgateDigitalCinema.Data;
+using RamsgateDigitalCinema.Models.Entities;
 
 namespace RamsgateDigitalCinema.Areas.Identity.Pages.Account
 {
@@ -23,13 +25,15 @@ namespace RamsgateDigitalCinema.Areas.Identity.Pages.Account
         private readonly UserManager<IdentityUser> _userManager;
         private readonly ILogger<RegisterModel> _logger;
         private readonly IEmailSender _emailSender;
-
+        private readonly ApplicationDbContext _context;
         public RegisterModel(
+            ApplicationDbContext context,
             UserManager<IdentityUser> userManager,
             SignInManager<IdentityUser> signInManager,
             ILogger<RegisterModel> logger,
             IEmailSender emailSender)
         {
+            _context = context;
             _userManager = userManager;
             _signInManager = signInManager;
             _logger = logger;
@@ -90,6 +94,10 @@ namespace RamsgateDigitalCinema.Areas.Identity.Pages.Account
 
                     await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
                         $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+
+                    Member newMember = new Member() { ASPID = user.Id, UnsubscribeCode = Guid.NewGuid().ToString(), ApiKey = Guid.NewGuid().ToString() };
+                    _context.Members.Add(newMember);
+                    _context.SaveChanges();
 
                     if (_userManager.Options.SignIn.RequireConfirmedAccount)
                     {

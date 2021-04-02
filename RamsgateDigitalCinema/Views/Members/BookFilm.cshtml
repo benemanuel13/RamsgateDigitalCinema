@@ -1,0 +1,49 @@
+﻿@model RamsgateDigitalCinema.ViewModels.Members.BookFilmViewModel
+
+<div class="text-center">
+    <h1 class="display-4">Book Film.</h1>
+    <button class="btn btn-success pull-right" onclick="bookFilm(false)">Book Film</button>
+</div>
+
+@section Scripts
+{
+    <script>
+        function bookFilm(donated) {
+            var amount;
+
+            if (donated) {
+                amount = $('#Donation').val();
+            }
+            else {
+                amount = "0";
+            }
+
+            $.ajax({
+                url: "/Members/PurchaseTicket",
+                type: "POST",
+                data: {
+                    FilmID: parseInt('@Model.FilmID'),
+                    Amount: amount
+                },
+                success: function (data) {
+                    if (data === "SUCCESS") {
+                        $.toaster({ title: 'Success', priority: 'success', message: 'Successfully Booked Ticket.', timeout: 7000 });
+
+                        //var currentTime = moment('@ViewBag.CurrentTime', 'DD/MM/YYYY HH:mm:ss');
+                        //var showingTime = moment('@ViewBag.ShowingTime', 'DD/MM/YYYY HH:mm:ss');
+
+                        //if (currentTime > showingTime) {
+                        //    $('#watch-now-modal').modal();
+                        //}
+                        //else {
+                        //    relocate();
+                        //}
+                    }
+                    else {
+                        $.toaster({ title: 'Bad News', priority: 'danger', message: 'Failed To Book Ticket.', timeout: 7000 });
+                    }
+                }
+            });
+        }
+    </script>
+}

@@ -29,5 +29,9 @@ namespace RamsgateDigitalCinema.Data
         public DbSet<Region> Regions { get; set; }
         public DbSet<SubRegion> SubRegions { get; set; }
         public DbSet<Country> Countries { get; set; }
+
+        public DbSet<BlockedFilm> BlockedFilms { get; set; }
+
+        public DbSet<Donation> Donations { get; set; }
     }
 }

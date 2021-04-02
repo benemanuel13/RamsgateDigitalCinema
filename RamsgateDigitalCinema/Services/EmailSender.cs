@@ -46,7 +46,7 @@ namespace RamsgateDigitalCinema.Services
                 await client.ConnectAsync(_emailSettings.MailServer, _emailSettings.MailPort, MailKit.Security.SecureSocketOptions.StartTlsWhenAvailable);
                 await client.AuthenticateAsync(_emailSettings.Sender, _emailSettings.Password);
             }
-            catch (Exception ex)
+            catch
             {
             }
             finally
