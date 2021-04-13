@@ -70,7 +70,7 @@ namespace RamsgateDigitalCinema.Controllers
 
             foreach (var collection in cols)
             {
-                collection.Film = db.Films.Find(collection.FilmID);
+                collection.Film = db.Films.Include(f => f.FilmCollection).Include(f => f.FilmCategory).Where(f => f.FilmID == collection.FilmID).FirstOrDefault();
             }
 
             return cols;
@@ -89,6 +89,8 @@ namespace RamsgateDigitalCinema.Controllers
                 FilmCategory cat = db.FilmCategories.Where(fc => fc.Description == Film.SHORT_COLLECTION).FirstOrDefault();
                 Film newFilm = new Film()
                 {
+                    Title = col.Name,
+                    Showing = DateTime.Parse("03/06/2021 11:00"),
                     FilmCategoryID = cat.FilmCategoryID,
                     FilmCollectionID = col.FilmCollectionID
                 };
@@ -97,9 +99,10 @@ namespace RamsgateDigitalCinema.Controllers
                 db.SaveChanges();
 
                 col.FilmID = newFilm.FilmID;
+                col.Film = newFilm;
                 db.SaveChanges();
 
-                return original;
+                return col;
             }
 
             original.Name = col.Name;
@@ -115,7 +118,7 @@ namespace RamsgateDigitalCinema.Controllers
 
             if (id == 0)
             {
-                films = db.Films.Include(f => f.FilmCategory).Include(f => f.FilmCollection).Where(f => f.FilmCollectionID != 0).ToList();
+                films = db.Films.Include(f => f.FilmCategory).Include(f => f.FilmCollection).Where(f => f.FilmCollectionID == null).ToList();
             }
             else
             {
@@ -139,6 +142,7 @@ namespace RamsgateDigitalCinema.Controllers
             }
 
             original.Title = film.Title;
+            original.Director = film.Director;
             original.Rating = film.Rating;
             original.Showing = film.Showing;
             original.Uploaded = film.Uploaded;
@@ -337,7 +341,7 @@ namespace RamsgateDigitalCinema.Controllers
         [HttpGet("GetFilm")]
         public Film GetFilm(int id)
         {
-            Film film = db.Films.Find(id);
+            Film film = db.Films.Include(f => f.FilmCategory).Include(f => f.FilmCollection).Where(f => f.FilmID == id).FirstOrDefault();
 
             return film;
         }
@@ -444,6 +448,25 @@ namespace RamsgateDigitalCinema.Controllers
             db.SaveChanges();
         }
 
+        [HttpGet("GetUploadedFilmList")]
+        public string[] GetUploadedFilmList()
+        {
+            string[] files = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory + "wwwroot\\" + config.GetSection("UploadPath").Value + "\\");
 
+            return files;
+        }
+
+        [HttpGet("DeleteUploadedFilms")]
+        public string DeleteUploadedFilms()
+        {
+            string[] files = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory + "wwwroot\\" + config.GetSection("UploadPath").Value + "\\");
+
+            foreach (string file in files)
+            {
+                System.IO.File.Delete(file);
+            }
+
+            return "OK";
+        }
     }
 }

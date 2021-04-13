@@ -9,6 +9,7 @@ using RamsgateDigitalCinema.Data;
 using RamsgateDigitalCinema.Interfaces;
 using RamsgateDigitalCinema.Models;
 using RamsgateDigitalCinema.Models.Entities;
+using RamsgateDigitalCinema.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -58,6 +59,33 @@ namespace RamsgateDigitalCinema.Controllers
             return View();
         }
 
+        public IActionResult FilmDetails(int id)
+        {
+            Film film = db.Films.Include(f => f.FilmCategory).Where(f => f.FilmID == id).FirstOrDefault();
+            FilmDetails details = db.FilmDetails.Where(fd => fd.FilmID == id).FirstOrDefault();
+            List<Film> films = null;
+
+            if (film.FilmCategory.Description == Film.SHORT_COLLECTION)
+            {
+                FilmCollection col = db.FilmCollections.Where(fc => fc.FilmID == id).FirstOrDefault();
+
+                films = db.Films.Where(f => f.FilmCollectionID == col.FilmCollectionID).ToList();
+
+                foreach (var thisfilm in films)
+                {
+                    film.FilmDetails = db.FilmDetails.Where(fd => fd.FilmID == thisfilm.FilmID).FirstOrDefault();
+                }
+            }
+
+            FilmDetailsViewModel vm = new FilmDetailsViewModel() { 
+                Film = film,
+                FilmDetails = details,
+                Films = films
+            };
+
+            return View(vm);
+        }
+
         public IActionResult Schedule()
         {
             return View();
@@ -74,14 +102,14 @@ namespace RamsgateDigitalCinema.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
-        public IActionResult FilmDetails(int id)
+        public IActionResult FilmDetailsOld(int id)
         {
             Film film = db.Films.Where(f => f.FilmID == id).FirstOrDefault();
             int shortCollectionID = db.FilmCategories.Where(fc => fc.Description == "Short Collection").Select(x => x.FilmCategoryID).FirstOrDefault();
 
             if (film.FilmCategoryID == shortCollectionID)
             {
-                return RedirectToAction("FilmCollectionDetauls", new { id = id });
+                return RedirectToAction("FilmCollectionDetails", new { id = id });
             }
 
             film.FilmDetails = db.FilmDetails.Where(fd => fd.FilmID == id).FirstOrDefault();

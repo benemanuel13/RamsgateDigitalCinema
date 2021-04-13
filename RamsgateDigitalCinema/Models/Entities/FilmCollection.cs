@@ -27,14 +27,14 @@ namespace RamsgateDigitalCinema.Models.Entities
 
         public virtual List<Film> Films { get; set; }
 
-        [NotMapped]
-        public List<Film> FilteredFilms
-        {
-            get {
-                FilmCategory cat = db.FilmCategories.Where(fc => fc.Description != Film.SHORT_COLLECTION).FirstOrDefault();
+        //[NotMapped]
+        //public List<Film> FilteredFilms
+        //{
+        //    get {
+        //        FilmCategory cat = db.FilmCategories.Where(fc => fc.Description != Film.SHORT_COLLECTION).FirstOrDefault();
 
-                return Films.Where(f => f.FilmCategoryID != cat.FilmCategoryID).ToList();
-            }
-        }
+        //        return Films.Where(f => f.FilmCategoryID != cat.FilmCategoryID).ToList();
+        //    }
+        //}
     }
 }
