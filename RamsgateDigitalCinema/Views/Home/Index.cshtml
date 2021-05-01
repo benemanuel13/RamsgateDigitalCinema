@@ -2,8 +2,128 @@
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
+@section CSS
+{
+    <style>
+    @@font-face {
+        font-family: 'budmojiggler';
+        src: url('~/fonts/budmojiggler.ttf') format('truetype');
+        font-weight: bold;
+        font-style: normal;
+    }
+
+    @@media screen and (max-width: 900px) {
+        .background {
+            background-image: url('./img/Lobby.png');
+            height: 950px;
+            width: 100%;
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+
+        .logos {
+            height: 50px;
+            width: 35px;
+        }
+
+        .title-text {
+            height: 50px;
+            width: 100px;
+        }
+
+        .dominic {
+            height: 450px;
+            width: 100%;
+        }
+    }
+
+    @@media screen and (min-width: 900px) {
+        .background {
+            background-image: url('./img/Lobby.png');
+            height: 950px;
+            width: 100%;
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+    }
+
+    .background-text {
+        color: white;
+        font-weight: bolder;
+        font-size: 18px;
+    }
+
+    .logo-placement {
+        text-align: center;
+        vertical-align: middle;
+        padding: 15px;
+    }
+
+    .ramsgate-title {
+        font-size: 50px;
+        text-align: center;
+        color: white;
+        font-famiy: budmojiggler;
+    }
+
+    .digital-title {
+        font-size: 50px;
+        text-align: center;
+        color: white;
+    }
+
+    .peach {
+        color: #f8e8c8;
+    }
+</style>
+}
+
+<div class="background">
+    <div class="row" style="margin-top: 25px;">
+        <div class="col-md-3">
+            <div style="text-align: center;">
+                <img style="width: 100%;" class="logos" src="~/RDC_logo.png" />
+            </div>
+        </div> 
+        <div class="col-md-6">
+            <div style="text-align: center;">
+                <img style="width: 100%;" class="title-text" src="~/img/RDC_text.png" />
+            </div>
+        </div> 
+        <div class="col-md-3">
+            <div style="text-align: center;">
+                <img style="width: 100%;" class="logos" src="~/mstile-150x150.png" />
+            </div>
+        </div> 
+    </div>
+    <div class="row">
+        <div class="col-sm-12 col-md-4">
+            <img class="dominic" style="padding: 25px;" src="~/img/Dominic.png" />
+        </div>
+        <div class="col-sm-12 col-md-8 background-text">
+            <div style="padding: 20px;">
+                Circumstances one again, brought us to celebrate our fifth Anniversary virtually on Ramsgate Digital Cinema.  But we're bringing you more films, more talks and workshops and the first FIGHT BACK Awards for Veterans.
+                <br /><br/>
+                This year, the Ramsgate Internation Film &amp; TV Festival is dedicated to one man, the wonderful artist, singer and sculptor, who designed our covetted Anchor statuette, Dominic Grant, who passed away last November.  From now on, the solid Bronze Anchor for the 
+                Best Feature Film will be known as the Dominic Grant Award.  There will be a special dedication at the Opening Gala night, with all profits from the evening to be given to the campaign to raise funds for the casting and installation of George IV status, sculpted by 
+                Dominic Grant at Ramsgate only Royal Harbour in the whole of the UK.
+                <br /><br/>
+                We would like to thank particularly the Ramsgate Town Council for their constant support over the years.<br/><br/>
+                <div style="text-align: center;">HAVE A GREAT FESTIVAL!</div>
+            </div>
+        </div>
+    </div>
+</div>
+<div style="background-color: black; margin-top: 30px; width: 100%; padding: 20px; margin-top: -90px;">
+    <div class="peach" style="font-size: 30px; font-weight: bolder; text-align: center">Showing now/next</div>
+    <div class="row">
+        <div class="col-md-6">
+            
+        </div>
+        <div class="col-md-6">
+            
+        </div>
+    </div>
 </div>
 
 Your Date and Time: &nbsp;@(ViewBag.DateTime.ToString())<br /><br />

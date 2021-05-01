@@ -62,7 +62,7 @@ namespace RamsgateDigitalCinema.Controllers
         public IActionResult FilmDetails(int id)
         {
             Film film = db.Films.Include(f => f.FilmCategory).Where(f => f.FilmID == id).FirstOrDefault();
-            FilmDetails details = db.FilmDetails.Where(fd => fd.FilmID == id).FirstOrDefault();
+            FilmDetails details = db.FilmDetails.Include(fd => fd.StillUrls).Where(fd => fd.FilmID == id).FirstOrDefault();
             List<Film> films = null;
 
             if (film.FilmCategory.Description == Film.SHORT_COLLECTION)

@@ -1,2 +1,106 @@
 ﻿@model RamsgateDigitalCinema.ViewModels.FilmDetailsViewModel
+@using RamsgateDigitalCinema.Extensions
 
+@section CSS {
+    <style>
+        .film-title {
+            font-size: 20px;
+            font-weight: bolder;
+        }
+
+        .directed-by {
+            font-style: italic;
+        }
+
+        .synopsis {
+            font-weight: bolder;
+        }
+
+        .still {
+            width: 100%;
+        }
+    </style>
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-7">
+            <img id="poster" style="width: 100%; padding: 20px;" />
+        </div>
+        <div class="col-md-5">
+            <div class="film-title">@Model.Film.Title</div>
+            <div>@Model.FilmDetails.CountryOfOrigin | @Model.FilmDetails.FilmLength.ToString() &nbsp;mins</div>
+            <div class="directed-by">directed by @Model.Film.Director</div> <br /><br />
+            <div class="synopsis">@Model.FilmDetails.Synopsis</div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-7 row">
+            @foreach(var still in Model.FilmDetails.StillUrls)
+            {
+                <div class="col-md-4">
+                    <img class="still" src="@still.Url" />
+                </div>
+            }
+        </div>
+        <div class="col-md-5" style="padding: 25px; margin-top: 25px;">
+            <div>with Jane Doe, William Shakespeare and Bill Gates</div><br /><br /><br />
+            <div style="font-weight: bolder;">@Model.Film.Showing.ToString("dddd dd MMMM - HH:mm") &nbsp; @Model.FilmDetails.Screen.GetDescription()</div>
+            <br />
+            <button class="btn btn-danger" style="width: 120px;" onclick="buyTicket()">Buy Ticket</button>
+        </div>
+    </div>
+    <div class="row bg-light" style="padding: 20px;">
+        <div class="col-md-7">
+            <div style="font-size: 25px; font-weight: bolder;">TRAILER</div>
+            @if (Model.FilmDetails.TrailerUrl != null)
+            {
+                <text>
+                    <video id="trailer" style="width: 100%;" autoplay controls></video>
+                </text>
+            }
+        </div>
+        <div class="col-md-5 row">
+            <div class="col-md-6">
+                <div style="font-size: 25px; font-weight: bolder;">DIRECTOR</div>
+                @if (Model.FilmDetails.DirectorPicUrl != null)
+                {
+                    <img id="director" src="" style="width: 100%;">
+                }
+            </div>
+            <div class="col-md-6">
+                <br/>
+                <div class="synopsis">@Model.FilmDetails.DirectorBio</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts
+{
+    <script>
+        $(document).ready(function() {
+            $('#poster').attr('src', "https://www.ramsgatedigitalcinema.co.uk" + '@Model.FilmDetails?.PosterUrl');
+
+            $('.still').each(function (pos, item){
+                var url = $(item).attr('src');
+
+                $(item).attr('src', "https://www.ramsgatedigitalcinema.co.uk" + url);
+            });
+
+            @if(Model.FilmDetails.DirectorPicUrl != null)
+            {
+                <text>
+                $('#director').attr('src', "https://www.ramsgatedigitalcinema.co.uk" + '@Model.FilmDetails?.DirectorPicUrl');
+                </text>
+            }
+
+            @if(Model.FilmDetails.TrailerUrl != null)
+            {
+                <text>
+                $('#trailer').attr('src', "https://www.ramsgatedigitalcinema.co.uk" + '@Model.FilmDetails?.TrailerUrl');
+                </text>
+            }
+        });
+    </script>
+}
