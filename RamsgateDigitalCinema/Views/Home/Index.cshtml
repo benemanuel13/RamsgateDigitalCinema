@@ -1,4 +1,6 @@
-﻿@{
+﻿@model RamsgateDigitalCinema.ViewModels.Home.LobbyViewModel
+
+@{
     ViewData["Title"] = "Home Page";
 }
 
@@ -14,19 +16,24 @@
 
     @@media screen and (max-width: 900px) {
         .background {
+            background-color: black;
             background-image: url('./img/Lobby.png');
-            height: 950px;
-            width: 100%;
             background-size: contain;
             background-repeat: no-repeat;
         }
 
+        .small-office {
+            height: 60px;
+        }
+
         .logos {
+            display: none;
             height: 50px;
             width: 35px;
         }
 
         .title-text {
+            display: none;
             height: 50px;
             width: 100px;
         }
@@ -45,6 +52,14 @@
             background-size: contain;
             background-repeat: no-repeat;
         }
+
+        .main-container {
+            margin-top: -30px;
+        }
+    }
+
+    @@media screen and (max-width: 900px) {
+        
     }
 
     .background-text {
@@ -63,7 +78,7 @@
         font-size: 50px;
         text-align: center;
         color: white;
-        font-famiy: budmojiggler;
+        font-family: budmojiggler;
     }
 
     .digital-title {
@@ -78,7 +93,7 @@
 </style>
 }
 
-<div class="background">
+<div class="background container">
     <div class="row" style="margin-top: 25px;">
         <div class="col-md-3">
             <div style="text-align: center;">
@@ -114,22 +129,106 @@
         </div>
     </div>
 </div>
-<div style="background-color: black; margin-top: 30px; width: 100%; padding: 20px; margin-top: -90px;">
+<div class="container main-container" style="background-color: black; width: 100%; padding: 20px;">
     <div class="peach" style="font-size: 30px; font-weight: bolder; text-align: center">Showing now/next</div>
     <div class="row">
         <div class="col-md-6">
-            
+            <div style="text-align: center;">
+                <img src="~/img/Screen1.png" />
+            </div>
+            @if (Model.Films[0] != null)
+            {
+                <div style="color: white; font-size: 25px; font-weight: bold;">@Model.Films[0].Date - @Model.Films[0].Time</div>
+                <div>
+                    <img class="poster" src="@Model.Films[0].PosterUrl" style="width: 100%;" />
+                </div>
+                <div style="color: white; font-size: 25px; font-weight: bold; padding-bottom: 30px;">@Model.Films[0].FilmTitle [@Model.Films[0].Rating]</div>
+            }
+            else
+            {
+                <div style="width: 100%; height: 250px;">
+                    <div style="text-align: center; color: white; font-size: 25px; font-weight: bold;">No More Films Showing</div>
+                </div>
+            }
         </div>
         <div class="col-md-6">
-            
+            <div style="text-align: center;">
+                <img src="~/img/Screen2.png" />
+            </div>
+            @if (Model.Films[1] != null)
+            {
+                <div style="color: white; font-size: 25px; font-weight: bold;">@Model.Films[1].Date - @Model.Films[1].Time</div>
+                <div>
+                    <img class="poster" src="@Model.Films[1].PosterUrl" style="width: 100%;" />
+                </div>
+                <div style="color: white; font-size: 25px; font-weight: bold; padding-bottom: 30px;">@Model.Films[1].FilmTitle [@Model.Films[1].Rating]</div>
+            }
+            else
+            {
+                <div style="width: 100%; height: 250px;">
+                    <div style="text-align: center; color: white; font-size: 25px; font-weight: bold;">No More Films Showing</div>
+                </div>
+            }
+        </div>
+    </div>
+    <div class="row container">
+        <div class="col-md-6">
+            <div style="text-align: center;">
+                <img src="~/img/Screen3.png" />
+            </div>
+            @if (Model.Films[2] != null)
+            {
+                <div style="color: white; font-size: 25px; font-weight: bold;">@Model.Films[2].Date - @Model.Films[2].Time</div>
+                <div>
+                    <img class="poster" src="@Model.Films[2].PosterUrl" style="width: 100%;" />
+                </div>
+                <div style="color: white; font-size: 25px; font-weight: bold; padding-bottom: 30px;">@Model.Films[2].FilmTitle [@Model.Films[2].Rating]</div>
+            }
+            else
+            {
+                <div style="width: 100%; height: 250px;">
+                    <div style="text-align: center; color: white; font-size: 25px; font-weight: bold;">No More Films Showing</div>
+                </div>
+            }
+        </div>
+        <div class="col-md-6">
+            <div style="text-align: center;">
+                <img src="~/img/Screen4.png" />
+            </div>
+            @if (Model.Films[3] != null)
+            {
+                <div style="color: white; font-size: 25px; font-weight: bold;">@Model.Films[3].Date - @Model.Films[3].Time</div>
+                <div>
+                    <img class="poster" src="@Model.Films[3].PosterUrl" style="width: 100%;" />
+                </div>
+                <div style="color: white; font-size: 25px; font-weight: bold; padding-bottom: 30px;">@Model.Films[3].FilmTitle [@Model.Films[3].Rating]</div>
+            }
+            else
+            {
+                <div style="width: 100%; height: 250px;">
+                    <div style="text-align: center; color: white; font-size: 25px; font-weight: bold;">No More Films Showing</div>
+                </div>
+            }
+        </div>
+    </div>
+
+    
+</div>
+
+<div class="container">
+    <div class="row" style="background-color: white; padding: 20px; border: 1px solid black;">
+        <div class="col-md-12">
+            <div style="text-align: center;">
+                <img class="small-office" src="/img/Box_office.png" style="width: 100%'" />
+            </div>
         </div>
     </div>
 </div>
-
+<!--
 Your Date and Time: &nbsp;@(ViewBag.DateTime.ToString())<br /><br />
 
 You are in: &nbsp;@(ViewBag.Country.Name)
-
+-->
 <div id="intro" class="modal" tabindex="-1" role="dialog">
   <div class="modal-dialog modal-lg" role="document">
     <div class="intro modal-content">
@@ -162,6 +261,15 @@ You are in: &nbsp;@(ViewBag.Country.Name)
     }
 
     <script>
+        $(document).ready(function setPoster(poster)
+        {
+            $('.poster').each(function (pos, item){
+                var url = $(item).attr('src');
+
+                $(item).attr('src', "https://www.ramsgatedigitalcinema.co.uk" + url);
+            });
+        });
+
         function dismissModal()
         {
             $('#intro').modal('hide');

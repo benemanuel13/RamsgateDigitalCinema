@@ -6,10 +6,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using RamsgateDigitalCinema.Data;
+using RamsgateDigitalCinema.Data.Migrations;
+using RamsgateDigitalCinema.Extensions;
 using RamsgateDigitalCinema.Interfaces;
 using RamsgateDigitalCinema.Models;
 using RamsgateDigitalCinema.Models.Entities;
 using RamsgateDigitalCinema.ViewModels;
+using RamsgateDigitalCinema.ViewModels.Home;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -27,7 +30,8 @@ namespace RamsgateDigitalCinema.Controllers
 
         public async Task<IActionResult> Index()
         {
-            ViewBag.DateTime = await GetLocationTime();
+            DateTime theTime = await GetLocationTime();
+            ViewBag.DateTime = theTime;
 
             ViewBag.Country = await GetLocation();
 
@@ -45,8 +49,33 @@ namespace RamsgateDigitalCinema.Controllers
                 ViewBag.ShowIntro = true;
                 HttpContext.Session.SetString("ShownIntro", "True");
             }
-            
-            return View();
+
+            LobbyViewModel vm = new LobbyViewModel();
+
+            for (int i = 0; i < 4; i++)
+            {
+                Screen screen = (Screen)i;
+
+                var film = db.Films.Join(db.FilmDetails, f => f.FilmID, fd => fd.FilmID, (f, fd) => new { Film = f, FilmDetails = fd }).Where(f => f.Film.Showing > theTime && f.FilmDetails.Screen == screen).OrderBy(f => f.Film.FilmID).ThenBy(f => f.Film.Showing).FirstOrDefault();
+
+                if (film != null)
+                {
+                    vm.Films.Add(new LobbyFilmViewModel()
+                    {
+                        FilmTitle = film.Film.Title,
+                        Rating = film.Film.Rating.GetDescription(),
+                        Time = film.Film.Showing.ToString("HH:mm"),
+                        Date = film.Film.Showing.ToString("dddd dd MMMM"),
+                        PosterUrl = film.FilmDetails.PosterUrl
+                    });
+                }
+                else
+                {
+                    vm.Films.Add(null);
+                }
+            }
+
+            return View(vm);
         }
 
         public IActionResult Programme()
