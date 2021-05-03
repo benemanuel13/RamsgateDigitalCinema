@@ -1,12 +1,229 @@
 ﻿@model RamsgateDigitalCinema.ViewModels.Members.BookFilmViewModel
 
-<div class="text-center">
-    <h1 class="display-4">Book Film.</h1>
-    <button class="btn btn-success pull-right" onclick="bookFilm(false)">Book Film</button>
+<div class="container">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Donation Optional</h3>
+                </div>
+                <div class="card-body">
+                    All tickets are FREE this year, as we know it has been difficult for many of you in these surreal times. But if you can afford a donation, we will be using the money to continue to bring independent cinema to you at a reasonable price for as long as possible.
+                    <br /><br />
+                    We are a not-for-profit organisation and your support is important to us.
+                    <br /><br />
+                    @if(Model.FilmID != 0)
+                    {
+                        <text>
+                        Enjoy your screening!
+                        </text>
+                    }
+                    else
+                    {
+                        <text>
+                        Thank you for donating!
+                        </text>
+                    }
+                </div>
+                <div class="card-footer">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <h5>Your Donation:</h5>
+                        </div>
+                        <div class="col-md-4">
+                            <select id="DonationSelection" class="form-control" onchange="selectDonation()">
+                                <option value="2" selected>£2.00</option>
+                                <option value="5">£5.00</option>
+                                <option value="10">£10.00</option>
+                                <option value="0">Other...</option>
+                            </select>
+                        </div>
+                        <div class="col-md-1">
+                            <h5>£</h5>
+                        </div>
+                        <div class="col-md-3">
+                            <input type="text" class="form-control" id="Donation" value="2.00" disabled>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Pay Pal Payment</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <table border="0" align="center" valign="top" bgcolor="#FFFFFF" style="width:100%">
+                                <tr>
+                                    <td colspan="2">
+                                        <div id="paypal-button-container"></div>
+                                    </td>
+                                </tr>
+                                <tr><td colspan="2">&nbsp;</td></tr>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            @if (Model.FilmID != 0)
+                            {
+                            <button class="btn btn-success float-right" onclick="bookFilm(false)">Continue Without Making A Donation</button>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Buttons container -->
+
+<div class="modal fade in" id="watch-now-modal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div id="watchNowModal" class="modal-dialog modal-lg" style="position: initial;">
+        <div class="modal-content">
+            <div class="modal-header text-center">
+                <h4 class="modal-title">Watch Film Now?</h4>
+            </div>
+            <div class="modal-body">
+                <div class="content">
+                    <div class="row">
+                        <div class="col-md-8">
+                            Do you wish to watch the film you have booked now?
+                        </div>
+                        <div class="col-md-4 row">
+                            <div class="col-md-6">
+                                <button class="btn btn-success" onclick="watchNow()">Yes</button>
+                            </div>
+                            <div class="col-md-6">
+                                <button class="btn btn-primary" onclick="relocate()">No</button>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 @section Scripts
 {
+    <script src="https://www.paypal.com/sdk/js?components=hosted-fields,buttons&currency=GBP&client-id=@(Model.ClientID)" data-client-token="@Model.ClientToken"></script>
+
+    <script>
+        function selectDonation() {
+            var selectAmount = $('#DonationSelection').val();
+            var amount = 0.0;
+
+            if (selectAmount === "0") {
+                $('#Donation').prop("disabled", false);
+            }
+            else {
+                $('#Donation').prop("disabled", true);
+                $('#Donation').val(parseFloat(selectAmount).toFixed(2));
+            }
+        }
+    </script>
+
+    <!-- Implementation -->
+    <script>
+        //Displays PayPal buttons
+        paypal.Buttons({
+            commit: false,
+            createOrder: function (data, actions) {
+                // This function sets up the details of the transaction, including the amount and line item details
+                return actions.order.create({
+                    purchase_units: [{
+                        amount: {
+                            value: $('#Donation').val()
+                        }
+                    }],
+                    'application_context': {
+                        'shipping_preference': "NO_SHIPPING"
+                    }
+                });
+            },
+            onCancel: function (data) {
+                // Show a cancel page, or return to cart
+            },
+            onApprove: function (data, actions) {
+                // This function captures the funds from the transaction
+                return actions.order.capture().then(function (details) {
+                    // This function shows a transaction success message to your buyer
+                    @if (Model.FilmID == 0)
+                        {
+                            <text>
+                            setTimeout(function () { document.location.href = "/Members/Thankyou"; }, 500);
+                            </text>
+                        }
+                        else
+                        {
+                            <text>
+                            bookFilm(true);
+                            </text>
+                        }
+                    });
+            },
+            onError: function (err) {
+                alert("Error");
+            }
+        }).render('#paypal-button-container');
+
+        // Eligibility check for advanced credit and debit card payments
+        if (paypal.HostedFields.isEligible()) {
+            paypal.HostedFields.render({
+                createOrder: function () { return "order-ID"; }, // replace order-ID with the order ID
+                styles: {
+                    'input': {
+                        'font-size': '17px',
+                        'font-family': 'helvetica, tahoma, calibri, sans-serif',
+                        'color': '#3a3a3a'
+                    },
+                    ':focus': {
+                        'color': 'black'
+                    }
+                },
+                fields: {
+                    number: {
+                        selector: '#card-number',
+                        placeholder: 'card number'
+                    },
+                    cvv: {
+                        selector: '#cvv',
+                        placeholder: 'card security number'
+                    },
+                    expirationDate: {
+                        selector: '#expiration-date',
+                        placeholder: 'mm/yy'
+                    }
+                }
+            }).then(function (hf) {
+                $('#my-sample-form').submit(function (event) {
+                    event.preventDefault();
+                    hf.submit({
+                        // Cardholder Name
+                        cardholderName: document.getElementById('card-holder-name').value,
+                        // Billing Address
+                        billingAddress: {
+                            streetAddress: document.getElementById('card-billing-address-street').value,      // address_line_1 - street
+                            extendedAddress: document.getElementById('card-billing-address-unit').value,       // address_line_2 - unit
+                            region: document.getElementById('card-billing-address-state').value,           // admin_area_1 - state
+                            locality: document.getElementById('card-billing-address-city').value,          // admin_area_2 - town / city
+                            postalCode: document.getElementById('card-billing-address-zip').value,           // postal_code - postal_code
+                            countryCodeAlpha2: document.getElementById('card-billing-address-country').value   // country_code - country
+                        }
+                    });
+                });
+            });
+        }
+        else {
+            $('#my-sample-form').hide();  // hides the advanced credit and debit card payments fields if merchant isn't eligible
+        }
+    </script>
+
     <script>
         function bookFilm(donated) {
             var amount;
@@ -29,21 +246,29 @@
                     if (data === "SUCCESS") {
                         $.toaster({ title: 'Success', priority: 'success', message: 'Successfully Booked Ticket.', timeout: 7000 });
 
-                        //var currentTime = moment('@ViewBag.CurrentTime', 'DD/MM/YYYY HH:mm:ss');
-                        //var showingTime = moment('@ViewBag.ShowingTime', 'DD/MM/YYYY HH:mm:ss');
+                        var currentTime = moment('@ViewBag.CurrentTime', 'DD/MM/YYYY HH:mm:ss');
+                        var showingTime = moment('@ViewBag.ShowingTime', 'DD/MM/YYYY HH:mm:ss');
 
-                        //if (currentTime > showingTime) {
-                        //    $('#watch-now-modal').modal();
-                        //}
-                        //else {
-                        //    relocate();
-                        //}
+                        if (currentTime > showingTime) {
+                            $('#watch-now-modal').modal();
+                        }
+                        else {
+                            relocate();
+                        }
                     }
                     else {
                         $.toaster({ title: 'Bad News', priority: 'danger', message: 'Failed To Book Ticket.', timeout: 7000 });
                     }
                 }
             });
+        }
+
+        function relocate() {
+            setTimeout(function () { window.location.href = "/Home/Index"; }, 500);
+        }
+
+        function watchNow() {
+            setTimeout(function () { window.location.href = "/Members/ShowFilm/@(Model.FilmID)"; }, 500);
         }
     </script>
 }

@@ -10,16 +10,20 @@ using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Rest;
 using Microsoft.Rest.Azure.Authentication;
+using Newtonsoft.Json;
 using RamsgateDigitalCinema.Data;
 using RamsgateDigitalCinema.Interfaces;
 using RamsgateDigitalCinema.Models.Entities;
 using RamsgateDigitalCinema.Models.Localisation;
+using RamsgateDigitalCinema.Models.PayPal;
 using RamsgateDigitalCinema.ViewModels.Members;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Net.Http;
 using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace RamsgateDigitalCinema.Controllers
@@ -185,11 +189,114 @@ namespace RamsgateDigitalCinema.Controllers
 
         public ActionResult BookFilm(int id)
         {
+            Film film = db.Films.Find(id);
+
+            PayPalToken authToken = GetAuthorizationToken();
+            PayPalClientToken clientToken = null;
+
+            PayPalDetails details = db.PayPalDetails.First();
+
+            if (authToken.Access_Token == "Failed")
+            {
+                clientToken = new PayPalClientToken() { client_id = details.ClientID, client_token = "FailedAuthorization" };
+            }
+            else
+            {
+                clientToken = GetClientToken(authToken.Access_Token);
+                clientToken.client_id = details.ClientID;
+            }
+
             BookFilmViewModel vm = new BookFilmViewModel() { 
-                FilmID = id
+                FilmID = id,
+                ClientID = clientToken.client_id,
+                ClientToken = clientToken.client_token
             };
 
+            if (film != null)
+            {
+                ViewBag.ShowingTime = film.Showing;
+            }
+
+            ViewBag.CurrentTime = GetLocationTime();
+
             return View(vm);
+        }
+
+        private PayPalClientToken GetClientToken(string auth)
+        {
+            HttpClient client = new HttpClient();
+
+            PayPayClient ppClient = new PayPayClient() { customer_id = "customer_" + CurrentMember.MemberID };
+            string ppJson = JsonConvert.SerializeObject(ppClient);
+
+            var bytes = Encoding.UTF8.GetBytes(auth);
+            client.DefaultRequestHeaders.Add("Authorization", "Bearer " + auth);
+            client.DefaultRequestHeaders.Add("Accept-Language", "en_US");
+
+            StringContent content = new StringContent(ppJson, UTF8Encoding.UTF8, "application/json");
+
+            HttpResponseMessage response = client.PostAsync("https://api.paypal.com/v1/identity/generate-token", content).Result;
+
+            if (response.IsSuccessStatusCode)
+            {
+                string json = response.Content.ReadAsStringAsync().Result;
+                PayPalClientToken cliToken = JsonConvert.DeserializeObject<PayPalClientToken>(json);
+
+                return cliToken;
+            }
+
+            return new PayPalClientToken() { client_token = "FailedClient" };
+        }
+
+        private PayPalToken GetAuthorizationToken()
+        {
+            PayPalDetails details = db.PayPalDetails.First();
+            PayPalToken token = null;
+
+            if (details.Expires < DateTime.Now)
+            {
+                token = GetSetPayPalToken();
+            }
+            else
+            {
+                token = new PayPalToken() { Access_Token = details.Token };
+            }
+
+            return token;
+        }
+
+        public PayPalToken GetSetPayPalToken()
+        {
+            PayPalDetails details = db.PayPalDetails.First();
+
+            string ClientID = details.ClientID;
+            string Secret = details.Secret;
+
+            HttpClient client = new HttpClient();
+            StringContent content = new StringContent("grant_type=client_credentials", Encoding.UTF8, "application/x-www-form-urlencoded");
+
+            var bytes = Encoding.UTF8.GetBytes(ClientID + ":" + Secret);
+            client.DefaultRequestHeaders.Add("Authorization", "Basic " + Convert.ToBase64String(bytes));
+
+            HttpResponseMessage response = client.PostAsync("https://api.paypal.com/v1/oauth2/token", content).Result;
+
+            if (response.IsSuccessStatusCode)
+            {
+                string json = response.Content.ReadAsStringAsync().Result;
+                PayPalToken token = JsonConvert.DeserializeObject<PayPalToken>(json);
+
+                int seconds = int.Parse(token.Expires_In);
+
+                details.Token = token.Access_Token;
+                details.Expires = DateTime.Now.AddSeconds(seconds);
+                db.SaveChanges();
+
+                return token;
+            }
+            else
+            {
+                return new PayPalToken() { Access_Token = "Failed" };
+            }
         }
 
         #region SetSources (defunct)

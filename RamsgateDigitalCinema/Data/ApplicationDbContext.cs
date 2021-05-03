@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using RamsgateDigitalCinema.Models.Entities;
 using RamsgateDigitalCinema.Models.Localisation;
+using RamsgateDigitalCinema.Models.PayPal;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -25,7 +26,6 @@ namespace RamsgateDigitalCinema.Data
 
         public DbSet<MemberFilm> MemberFilms { get; set; }
 
-
         public DbSet<Region> Regions { get; set; }
         public DbSet<SubRegion> SubRegions { get; set; }
         public DbSet<Country> Countries { get; set; }
@@ -33,5 +33,7 @@ namespace RamsgateDigitalCinema.Data
         public DbSet<BlockedFilm> BlockedFilms { get; set; }
 
         public DbSet<Donation> Donations { get; set; }
+
+        public DbSet<PayPalDetails> PayPalDetails { get; set; }
     }
 }
