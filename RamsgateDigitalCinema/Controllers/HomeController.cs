@@ -102,7 +102,7 @@ namespace RamsgateDigitalCinema.Controllers
 
                 foreach (var thisfilm in films)
                 {
-                    film.FilmDetails = db.FilmDetails.Where(fd => fd.FilmID == thisfilm.FilmID).FirstOrDefault();
+                    thisfilm.FilmDetails = db.FilmDetails.Where(fd => fd.FilmID == thisfilm.FilmID).FirstOrDefault();
                 }
             }
 
@@ -111,6 +111,16 @@ namespace RamsgateDigitalCinema.Controllers
                 FilmDetails = details,
                 Films = films
             };
+
+            if (CurrentMember != null)
+            {
+                var memberFilm = db.MemberFilms.Where(mf => mf.FilmID == id && mf.MemberID == CurrentMember.MemberID).FirstOrDefault();
+                ViewBag.Booked = memberFilm != null;
+            }
+            else
+            {
+                ViewBag.Booked = false;
+            }
 
             return View(vm);
         }

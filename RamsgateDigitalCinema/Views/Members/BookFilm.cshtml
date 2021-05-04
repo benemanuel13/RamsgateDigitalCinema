@@ -1,8 +1,18 @@
 ﻿@model RamsgateDigitalCinema.ViewModels.Members.BookFilmViewModel
 
+@section CSS {
+    <style>
+        @@media screen and (max-width: 900px) {
+            .donation-bottom {
+                margin-bottom: 25px;
+            }
+        }
+    </style>
+}
+
 <div class="container">
     <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-6 donation-bottom">
             <div class="card">
                 <div class="card-header">
                     <h3>Donation Optional</h3>
@@ -201,6 +211,7 @@
                     }
                 }
             }).then(function (hf) {
+                alert("hf submit");
                 $('#my-sample-form').submit(function (event) {
                     event.preventDefault();
                     hf.submit({

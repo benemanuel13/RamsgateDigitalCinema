@@ -51,7 +51,14 @@
             <div>with Jane Doe, William Shakespeare and Bill Gates</div><br /><br /><br />
             <div style="font-weight: bolder;">@Model.Film.Showing.ToString("dddd dd MMMM - HH:mm") &nbsp; @Model.FilmDetails.Screen.GetDescription()</div>
             <br />
-            <button class="btn btn-danger" style="width: 120px;" onclick="buyTicket()">Buy Ticket</button>
+            @if (ViewBag.Booked == false)
+            {
+                <button class="btn btn-danger" style="width: 120px;" onclick="buyTicket()">Buy Ticket</button>
+            }
+            else
+            {
+                <div style="text-align: center; font-size: 25px; font-weight: bolder; color: red;">You Have Booked This Film</div>
+            }
         </div>
     </div>
     <div class="row bg-light" style="padding: 20px;">
@@ -106,5 +113,10 @@
                 </text>
             }
         });
+
+        function buyTicket()
+        {
+            setTimeout(function () { window.location.href = "/Members/BookTicket/@Model.Film.FilmID"; }, 500);
+        }
     </script>
 }

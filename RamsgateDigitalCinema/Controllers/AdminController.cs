@@ -125,6 +125,11 @@ namespace RamsgateDigitalCinema.Controllers
                 films = db.Films.Include(f => f.FilmCategory).Include(f => f.FilmCollection).Where(f => f.FilmCollectionID == id).ToList();
             }
 
+            foreach (var film in films)
+            {
+                film.FilmDetails = db.FilmDetails.Where(fd => fd.FilmID == film.FilmID).FirstOrDefault();
+            }
+
             return films;
         }
 

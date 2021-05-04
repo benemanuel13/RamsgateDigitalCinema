@@ -18,7 +18,9 @@ namespace RamsgateDigitalCinema.Models.Entities
         [Description("Screen Two")]
         Screen2,
         [Description("Screen Three")]
-        Screen3
+        Screen3,
+        [Description("Screen Four")]
+        Screen4
     }
 
     public class FilmDetails
@@ -35,6 +37,9 @@ namespace RamsgateDigitalCinema.Models.Entities
         public string DirectorPicUrl { get; set; }
         public string DirectorPicUrl2 { get; set; }
         public virtual List<StillUrl> StillUrls { get; set; }
+
+        public string DirectorIntro { get; set; }
+        public string Cast { get; set; }
 
         public string CountryOfOrigin { get; set; }
         public int FilmLength { get; set; }

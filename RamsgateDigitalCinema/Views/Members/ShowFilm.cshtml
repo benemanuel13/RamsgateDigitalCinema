@@ -2,12 +2,6 @@
 
 @{
     string introVideo = "https://www.ramsgatedigitalcinema.co.uk/video/Intro.mp4";
-    //string introVideo = "https://localhost:44382/video/intro.mp4";
-
-    //if(Model.FilmID == 15)
-    //{
-    //    introVideo = "https://www.ramsgatedigitalcinema.co.uk/video/Intro.mp4";
-    //}
 }
 
 <link href="//amp.azure.net/libs/amp/2.3.4/skins/amp-default/azuremediaplayer.min.css" rel="stylesheet">
@@ -37,16 +31,7 @@
         var video = document.getElementById("azuremediaplayer");
         var videoDiv = document.getElementById("video");
 
-        //video.controls = false;
-
         video.addEventListener("ended", startFilm);
-
-        //video.onended = function () {
-            //GoFullScreen(videoDiv);
-
-        //    startFilm();
-        //};
-
         video.play();
     });
 

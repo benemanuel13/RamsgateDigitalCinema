@@ -187,8 +187,15 @@ namespace RamsgateDigitalCinema.Controllers
             return Content("SUCCESS");
         }
 
-        public ActionResult BookFilm(int id)
+        public async Task<ActionResult> BookFilm(int id)
         {
+            var mf = db.MemberFilms.Where(m => m.FilmID == id && m.MemberID == CurrentMember.MemberID).Any();
+
+            if (mf)
+            {
+                return RedirectToAction("AlreadyBooked", "Members");
+            }
+
             Film film = db.Films.Find(id);
 
             PayPalToken authToken = GetAuthorizationToken();
@@ -217,7 +224,7 @@ namespace RamsgateDigitalCinema.Controllers
                 ViewBag.ShowingTime = film.Showing;
             }
 
-            ViewBag.CurrentTime = GetLocationTime();
+            ViewBag.CurrentTime = await GetLocationTime();
 
             return View(vm);
         }
