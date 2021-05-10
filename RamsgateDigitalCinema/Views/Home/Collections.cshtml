@@ -1,22 +1,28 @@
-﻿@model RamsgateDigitalCinema.ViewModels.Home.FilmsViewModel
-
-@{
-    ViewData["Title"] = "Films";
-}
-
-<div class="text-center">
-    <h1 class="display-4">Feature Films</h1>
+﻿<div class="text-center">
+    <h1 class="display-4">Short Collections</h1>
 </div>
 
 <div class="container">
-    @foreach(var category in Model.Categories)
+    @foreach(var collection in Model.Collections)
     {
         <div class="even row" style="padding: 4px;">
             <div class="col-md-12">
-                <h2>@category.Category.Description</h2>
+                <h2>@collection.Collection.Name</h2>
+                    @if(ViewBag.LoggedIn)
+                        {
+                            <div style="float: right;">
+                                <button class="btn btn-success" onclick="bookFilm(@collection.Collection.FilmID)">Book Now</button>
+                            </div>
+                        }
+                        else
+                        {
+                            <div style="float: right;">
+                                <a href="/Identity/Account/Login" class="btn btn-success">Login To Book</a>
+                            </div>
+                        }
             </div>
         </div>
-        @foreach(var film in category.Films)
+        @foreach(var film in collection.Films)
         {
             <div class="odd row" style="margin: 4px;">
                 <div class="col-md-2">
@@ -29,7 +35,7 @@
                         <img class="poster" data-poster="@film.FilmDetails.PosterUrl" style="width: 200px; width: 100%;" src="" />
                     }
                 </div>
-                <div class="col-md-7">
+                <div class="col-md-8">
                     @if(film.FilmDetails == null)
                     {
                         <h4>@film.Title</h4>
@@ -41,27 +47,16 @@
                         <div>@film.FilmDetails.Synopsis</div>
                     }
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2">
                     @if(film.FilmDetails == null)
                     {
                         <div style="text-align: center;">No Details</div>
                     }
                     else
                     {
-                        if(ViewBag.LoggedIn)
-                        {
-                            <div style="text-align: right;">
-                                <button class="btn btn-primary" onclick="viewDetails(@film.FilmID)">View Details</button>
-                                <button class="btn btn-success" onclick="bookFilm(@film.FilmID)">Book Now</button>
-                            </div>
-                        }
-                        else
-                        {
-                            <div style="text-align: right;">
-                                <button class="btn btn-primary" onclick="viewDetails(@film.FilmID)">View Details</button>
-                                <a href="/Identity/Account/Login" class="btn btn-success">Login To Book</a>
-                            </div>
-                        }
+                        <div style="float: right;">
+                            <button class="btn btn-success" onclick="viewDetails(@film.FilmID)">View Details</button>
+                        </div>
                     }
                 </div>
             </div>
@@ -90,7 +85,7 @@
 
         function viewDetails(id)
         {
-            setTimeout(window.location.href = '/Home/FilmDetails/' + id, 500);
+            setTimeout(window.location.href = '/Home/FilmDetails/?id=' + id + '&fromCollection=true', 500);
         }
     </script>
 }

@@ -83,11 +83,6 @@ namespace RamsgateDigitalCinema.Controllers
             return View();
         }
 
-        public IActionResult Films()
-        {
-            return View();
-        }
-
         public IActionResult FilmDetails(int id)
         {
             Film film = db.Films.Include(f => f.FilmCategory).Where(f => f.FilmID == id).FirstOrDefault();
@@ -168,6 +163,56 @@ namespace RamsgateDigitalCinema.Controllers
             }
 
             return View(col);
+        }
+
+        public IActionResult Films()
+        {
+            FilmsViewModel vm = new FilmsViewModel();
+
+            var categories = db.FilmCategories.OrderBy(fc => fc.Description).Where(fc => fc.IsViewable && fc.FilmCategoryID != 8).ToList().Select(fc => new FilmCategoryViewModel()
+            {
+                Category = fc,
+                Films = db.Films.Where(f => fc.FilmCategoryID == f.FilmCategoryID).ToList()
+            }).ToList();
+
+            foreach (var cat in categories)
+            {
+                foreach (var film in cat.Films)
+                {
+                    film.FilmDetails = db.FilmDetails.Where(fd => fd.FilmID == film.FilmID).FirstOrDefault();
+                }
+            }
+
+            vm.Categories = categories;
+
+            ViewBag.LoggedIn = CurrentMember != null;
+
+            return View(vm);
+        }
+
+        public IActionResult Collections()
+        {
+            CollectionsViewModel vm = new CollectionsViewModel();
+
+            var collections = db.FilmCollections.OrderBy(fc => fc.Name).ToList().Select(fc => new CollectionViewModel()
+            {
+                Collection = fc,
+                Films = db.Films.Where(f => fc.FilmCollectionID == f.FilmCollectionID && f.Title != "Collection").ToList()
+            }).ToList();
+
+            foreach (var col in collections)
+            {
+                foreach (var film in col.Films)
+                {
+                    film.FilmDetails = db.FilmDetails.Where(fd => fd.FilmID == film.FilmID).FirstOrDefault();
+                }
+            }
+
+            vm.Collections = collections;
+
+            ViewBag.LoggedIn = CurrentMember != null;
+
+            return View(vm);
         }
     }
 }
