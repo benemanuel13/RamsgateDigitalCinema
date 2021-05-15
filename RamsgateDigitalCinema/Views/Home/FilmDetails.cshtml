@@ -27,27 +27,23 @@
 }
 
 <div class="container">
-    <div class="row">
-        <div class="col-md-7">
+    <div class="row" style="margin-bottom: 10px;">
+        <!--<div class="col-md-7">
             <img id="poster" style="width: 100%; padding: 20px;" />
+        </div>-->
+        <div class="col-md-7 row">
+        @foreach(var still in Model.FilmDetails.StillUrls)
+        {
+            <div class="col-md-4">
+                <img class="still" src="@still.Url" />
+            </div>
+        }
         </div>
         <div class="col-md-5">
             <div class="film-title">@Model.Film.Title</div>
             <div>@Model.FilmDetails.CountryOfOrigin | @Model.FilmDetails.FilmLength.ToString() &nbsp;mins</div>
             <div class="directed-by">directed by @Model.Film.Director</div> <br /><br />
             <div class="synopsis">@Model.FilmDetails.Synopsis</div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-7 row">
-            @foreach(var still in Model.FilmDetails.StillUrls)
-            {
-                <div class="col-md-4">
-                    <img class="still" src="@still.Url" />
-                </div>
-            }
-        </div>
-        <div class="col-md-5" style="padding: 25px; margin-top: 25px;">
             <div>with Jane Doe, William Shakespeare and Bill Gates</div><br /><br /><br />
             <div style="font-weight: bolder;">@Model.Film.Showing.ToString("dddd dd MMMM - HH:mm") &nbsp; @Model.FilmDetails.Screen.GetDescription()</div>
             <br />
@@ -91,7 +87,7 @@
 {
     <script>
         $(document).ready(function() {
-            $('#poster').attr('src', "https://www.ramsgatedigitalcinema.co.uk" + '@Model.FilmDetails?.PosterUrl');
+            //$('#poster').attr('src', "https://www.ramsgatedigitalcinema.co.uk" + '@Model.FilmDetails?.PosterUrl');
 
             $('.still').each(function (pos, item){
                 var url = $(item).attr('src');

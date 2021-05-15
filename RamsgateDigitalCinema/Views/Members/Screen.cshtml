@@ -1,1 +1,27 @@
 ﻿@model RamsgateDigitalCinema.ViewModels.Members.ScreenFilmDetails
+
+@{
+    ViewData["Title"] = "Screen " + Model.Screen.ToString();
+}
+
+<div class="container" style="background-color: black; padding; 25px;">
+    <div class="text-center">
+        <img id="screenImg" style="padding: 30px;" src="" />
+    </div>
+    <div class="text-center">
+        <img id="posterImg" style="width: 50%;" src="" />
+    </div>
+</div>
+
+@section Scripts
+{
+    <script>
+        $(document).ready(function(){
+            var screenimg = "/img/Screen" + "@Model.Screen.ToString()" + ".png";
+            $('#screenImg').attr("src", screenimg);
+
+            var poster = "https://www.ramsgatedigitalcinema.co.uk" + "@Model.FilmDetails.PosterUrl";
+            $('#posterImg').attr("src", poster);
+        });
+    </script>
+}

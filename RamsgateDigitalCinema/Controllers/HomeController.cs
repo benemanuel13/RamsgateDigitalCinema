@@ -56,13 +56,15 @@ namespace RamsgateDigitalCinema.Controllers
             {
                 Screen screen = (Screen)i;
 
-                var film = db.Films.Join(db.FilmDetails, f => f.FilmID, fd => fd.FilmID, (f, fd) => new { Film = f, FilmDetails = fd }).Where(f => f.Film.Showing > theTime && f.FilmDetails.Screen == screen).OrderBy(f => f.Film.FilmID).ThenBy(f => f.Film.Showing).FirstOrDefault();
+                var film = db.Films.Join(db.FilmDetails, f => f.FilmID, fd => fd.FilmID, (f, fd) => new { Film = f, FilmDetails = fd }).Where(f => f.Film.Showing > theTime && f.FilmDetails.Screen == screen).OrderBy(f => f.Film.Showing).ThenBy(f => f.Film.FilmID).FirstOrDefault();
 
                 if (film != null)
                 {
+                    var title = film.Film.Title == "Collection" ? db.FilmCollections.Where(fc => fc.FilmID == film.Film.FilmID).First().Name : film.Film.Title;
+
                     vm.Films.Add(new LobbyFilmViewModel()
                     {
-                        FilmTitle = film.Film.Title,
+                        FilmTitle = title,
                         Rating = film.Film.Rating.GetDescription(),
                         Time = film.Film.Showing.ToString("HH:mm"),
                         Date = film.Film.Showing.ToString("dddd dd MMMM"),

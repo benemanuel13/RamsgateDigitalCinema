@@ -71,6 +71,7 @@ namespace RamsgateDigitalCinema.Controllers
             }
 
             nextFilm.Blocked = await IsBlocked(nextFilm.Film.FilmID);
+            nextFilm.Screen = (int)screen + 1;
 
             return View(nextFilm);
         }
