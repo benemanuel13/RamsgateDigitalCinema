@@ -73,6 +73,8 @@ namespace RamsgateDigitalCinema.Controllers
             nextFilm.Blocked = await IsBlocked(nextFilm.Film.FilmID);
             nextFilm.Screen = (int)screen + 1;
 
+            nextFilm.Booked = db.MemberFilms.Where(mf => mf.MemberID == CurrentMember.MemberID && mf.FilmID == nextFilm.Film.FilmID).Any();
+
             return View(nextFilm);
         }
 
@@ -83,7 +85,11 @@ namespace RamsgateDigitalCinema.Controllers
 
         public ActionResult EmptyScreen(Screen screen)
         {
-            return View();
+            EmptyScreenViewModel vm = new EmptyScreenViewModel() {
+                Screen = (int)screen + 1
+            };
+
+            return View(vm);
         }
 
         public async Task<bool> IsBlocked(int filmID)

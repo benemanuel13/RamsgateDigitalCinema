@@ -4,10 +4,12 @@
     ViewData["Title"] = "Screen " + Model.Screen.ToString();
 }
 
-<div class="container" style="background-color: black; padding; 25px;">
+<div class="container text-light" style="background-color: black; padding; 25px;">
     <div class="text-center">
         <img id="screenImg" style="padding: 30px;" src="" />
+        <span style="font-size: 20px; font-weight: bolder; margin-bottom: 20px;">Showing in </span><span id="timeleft" style="font-size: 20px; font-weight: bolder;"></span>
     </div>
+    
     <div class="text-center">
         <img id="posterImg" style="width: 50%;" src="" />
     </div>
@@ -16,12 +18,54 @@
 @section Scripts
 {
     <script>
+        var startTime = moment('@Model.Film.Showing.ToString("dd/MM/yyyy HH:mm")', "DD/MM/YYYY HH:mm")
+
         $(document).ready(function(){
             var screenimg = "/img/Screen" + "@Model.Screen.ToString()" + ".png";
             $('#screenImg').attr("src", screenimg);
 
             var poster = "https://www.ramsgatedigitalcinema.co.uk" + "@Model.FilmDetails.PosterUrl";
             $('#posterImg').attr("src", poster);
+
+            startCountdown();
         });
+
+        function startCountdown()
+        {
+            setInterval(updateTime, 1000);
+        }
+
+        var booked = Boolean("@Model.Booked.ToString().ToLower()");
+
+        function updateTime()
+        {
+            var ms = startTime.diff(moment());
+            var d = moment.duration(ms);
+            var hrs = Math.floor(d.asHours());
+
+            if (ms < 0 && booked) {
+                newFilmID = parseInt("@Model.Film.FilmID");
+
+                setTimeout(function () { document.location.href = "/Members/ShowFilm/" + newFilmID; }, 500);
+            }
+            else if (ms < 0) {
+                setTimeout(function () { document.location.href = "/Members/Screen?screen=@Model.Screen" }, 500);
+            }
+
+            var label = "hrs.";
+            
+            if (hrs === 1) {
+                label = "hr.";
+            }
+
+            var print = Math.floor(d.asHours()) + " " + label + " " + moment.utc(ms).format("mm:ss");
+
+            if (ms < 0) {
+                $('#timeleft').text("Starting...");
+            }
+            else {
+                $('#timeleft').text(print);
+            }
+        }
     </script>
 }

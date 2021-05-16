@@ -14,5 +14,7 @@ namespace RamsgateDigitalCinema.ViewModels.Members
         public FilmDetails FilmDetails { get; set;}
 
         public bool Blocked { get; set; } = false;
+
+        public bool Booked { get; set; }
     }
 }

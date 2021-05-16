@@ -174,7 +174,7 @@ namespace RamsgateDigitalCinema.Controllers
             var categories = db.FilmCategories.OrderBy(fc => fc.Description).Where(fc => fc.IsViewable && fc.FilmCategoryID != 8).ToList().Select(fc => new FilmCategoryViewModel()
             {
                 Category = fc,
-                Films = db.Films.Where(f => fc.FilmCategoryID == f.FilmCategoryID).ToList()
+                Films = db.Films.Where(f => fc.FilmCategoryID == f.FilmCategoryID).OrderBy(f => f.Showing).ToList()
             }).ToList();
 
             foreach (var cat in categories)

@@ -1,1 +1,33 @@
-﻿
+﻿@model RamsgateDigitalCinema.ViewModels.Members.EmptyScreenViewModel
+
+@{
+    ViewData["Title"] = "No More Showing Screen " + Model.Screen.ToString();
+}
+
+@section CSS
+{
+    <style>
+        @@media screen and (max-width: 900px) {
+            .bottom {
+                padding-bottom: 25px;
+            }
+        }
+    </style>
+}
+
+<div class="container text-light bottom" style="background-color: black; padding; 25px;">
+    <div class="text-center">
+        <img id="screenImg" style="padding: 30px;" src="" />
+        <span style="font-size: 20px; font-weight: bolder; margin-bottom: 20px;">No More Showings On This Screen</span>
+    </div>
+</div>
+
+@section Scripts
+{
+    <script>
+        $(document).ready(function(){
+            var screenimg = "/img/Screen" + "@Model.Screen.ToString()" + ".png";
+            $('#screenImg').attr("src", screenimg);
+        });
+    </script>
+}
