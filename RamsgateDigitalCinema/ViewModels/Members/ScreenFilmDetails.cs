@@ -10,6 +10,7 @@ namespace RamsgateDigitalCinema.ViewModels.Members
     {
         public int Screen { get; set; }
 
+        public string Title { get; set; }
         public Film Film { get; set; }
         public FilmDetails FilmDetails { get; set;}
 

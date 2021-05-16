@@ -63,7 +63,7 @@ namespace RamsgateDigitalCinema.Controllers
             DateTime currentTime = await GetLocationTime();
 
             var nextFilm = db.Films.Include(f => f.FilmCollection).Include(f => f.FilmCategory).Join(db.FilmDetails, f => f.FilmID, fd => fd.FilmID, (f, fd) => new ScreenFilmDetails() { Film = f, FilmDetails = fd }).Where(
-                    x => x.FilmDetails.Screen == screen && x.Film.Showing > currentTime && x.Film.FilmCategory.IsViewable).OrderBy(x => x.Film.Showing).FirstOrDefault();
+                    x => x.FilmDetails.Screen == screen && x.Film.Showing > currentTime && x.Film.FilmCategory.IsViewable).OrderBy(x => x.Film.Showing).Where(x => (x.Film.FilmCollectionID == null || x.Film.FilmCollectionID == 0) || x.Film.Title == "Collection").FirstOrDefault();
 
             if (nextFilm == null)
             { 
@@ -72,6 +72,9 @@ namespace RamsgateDigitalCinema.Controllers
 
             nextFilm.Blocked = await IsBlocked(nextFilm.Film.FilmID);
             nextFilm.Screen = (int)screen + 1;
+
+            var title = nextFilm.Film.Title == "Collection" ? db.FilmCollections.Where(fc => fc.FilmID == nextFilm.Film.FilmID).First().Name : nextFilm.Film.Title;
+            nextFilm.Title = title;
 
             nextFilm.Booked = db.MemberFilms.Where(mf => mf.MemberID == CurrentMember.MemberID && mf.FilmID == nextFilm.Film.FilmID).Any();
 

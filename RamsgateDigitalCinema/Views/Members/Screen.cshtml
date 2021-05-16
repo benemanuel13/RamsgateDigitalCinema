@@ -5,11 +5,23 @@
 }
 
 <div class="container text-light" style="background-color: black; padding; 25px;">
-    <div class="text-center">
-        <img id="screenImg" style="padding: 30px;" src="" />
-        <span style="font-size: 20px; font-weight: bolder; margin-bottom: 20px;">Showing in </span><span id="timeleft" style="font-size: 20px; font-weight: bolder;"></span>
+    @if(Model.Booked)
+    {
+        <div style="float: right;">
+            <div style="font-size: 23px; color: red; font-weight: bolder;">BOOKED</div>
+        </div>
+    }
+    <div class="row">
+        <div class="col-md-6 text-center">
+            <img id="screenImg" style="padding: 30px;" src="" />
+        </div>
+        <div class="col-md-6 text-center">
+            <div style="padding: 30px;">
+                <span style="font-size: 20px; font-weight: bolder;">@Model.Title</span><br/>
+                <span style="font-size: 20px; font-weight: bolder; margin-bottom: 20px;">Showing in </span><span id="timeleft" style="font-size: 20px; font-weight: bolder;"></span>
+            </div>  
+        </div>
     </div>
-    
     <div class="text-center">
         <img id="posterImg" style="width: 50%;" src="" />
     </div>
