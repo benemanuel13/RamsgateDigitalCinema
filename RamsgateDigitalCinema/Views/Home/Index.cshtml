@@ -230,16 +230,17 @@ Your Date and Time: &nbsp;@(ViewBag.DateTime.ToString())<br /><br />
 You are in: &nbsp;@(ViewBag.Country.Name)
 -->
 <div id="intro" class="modal" tabindex="-1" role="dialog">
-  <div class="modal-dialog modal-lg" role="document">
+  <div id="mainIntro" class="modal-dialog modal-full" role="document">
     <div class="intro modal-content">
-      <div class="modal-header">
+      <!--<div class="modal-header">
         <h5 class="modal-title text-light">Ramsgate International Film and Television Festival 2021</h5>
-      </div>
-      <div class="intro modal-body">
+      </div>-->
+      <div class="intro modal-body text-center">
         <img class="introimage" src="~/img/Festival_design.jpg" />
+        <partial name="_Partners" />
       </div>
-      <div class="modal-footer">
-        <button class="btn btn-success text-center" onclick="dismissModal()">ENTER</button>
+      <div class="modal-footer text-center justify-content-center" style="text-align: center;">
+        <button class="btn btn-success text-center justify-content-center" style="text-align: center;" onclick="dismissModal()">ENTER</button>
       </div>
     </div>
   </div>
@@ -254,7 +255,10 @@ You are in: &nbsp;@(ViewBag.Country.Name)
         <text>
             <script>
                 $(document).ready(function (){
+
                     $('#intro').modal();
+                    $('#mainIntro').css("height", window.innerHeight);
+                    $('#mainIntro').css("width", window.innerWidth);
                 });
             </script>
         </text>            
@@ -274,5 +278,9 @@ You are in: &nbsp;@(ViewBag.Country.Name)
         {
             $('#intro').modal('hide');
         }
+
+        $(document).ready(function(){
+            alert("PLEASE NOTE: This site is under construction and information may be inaccurate.  Also, please DONT BOOK ANY FILMS as the booking may nor be valid for the festival.");
+        });
     </script>
 }

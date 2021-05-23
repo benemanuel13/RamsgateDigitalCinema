@@ -11,6 +11,11 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using System.IO;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Azure.Management.Media;
+using Microsoft.IdentityModel.Clients.ActiveDirectory;
+using Microsoft.Rest.Azure.Authentication;
+using Microsoft.Azure.Management.Media.Models;
+using Microsoft.Rest;
 
 namespace RamsgateDigitalCinema.Controllers
 {
@@ -472,6 +477,75 @@ namespace RamsgateDigitalCinema.Controllers
             }
 
             return "OK";
+        }
+
+        [HttpGet("SetSources")]
+        public ActionResult SetSources()
+        {
+            var client = CreateClient().Result;
+
+            StreamingEndpoint streamingEndpoint = client.StreamingEndpoints.GetAsync(config.GetSection("ResourceGroup").Value, config.GetSection("AccountName").Value, "default").Result;
+
+            var filmsToSource = db.Films.Where(f => f.AssetCreated && (f.Source == null || f.Source == "")).ToList();
+
+            foreach (Film film in filmsToSource)
+            {
+                ListPathsResponse paths = client.StreamingLocators.ListPathsAsync(config.GetSection("ResourceGroup").Value, config.GetSection("AccountName").Value, film.AssetName + "Locator").Result;
+
+                string dashPath = "";
+
+                foreach (StreamingPath path in paths.StreamingPaths)
+                {
+                    UriBuilder uriBuilder = new UriBuilder();
+                    uriBuilder.Scheme = "https";
+                    uriBuilder.Host = streamingEndpoint.HostName;
+
+                    // Look for just the DASH path and generate a URL for the Azure Media Player to playback the content with the AES token to decrypt.
+                    // Note that the JWT token is set to expire in 1 hour. 
+                    if (path.StreamingProtocol == StreamingPolicyStreamingProtocol.Dash)
+                    {
+                        uriBuilder.Path = path.Paths[0];
+
+                        dashPath = uriBuilder.ToString();
+                    }
+                }
+
+                SetSource(film.FilmID, dashPath);
+            }
+
+            return Content("OK");
+        }
+
+        public void SetSource(int filmID, string source)
+        {
+            var film = db.Films.Find(filmID);
+            film.Source = source;
+            //film.Streaming = true;
+
+            db.SaveChanges();
+        }
+
+        private async Task<IAzureMediaServicesClient> CreateClient()
+        {
+            IAzureMediaServicesClient client = await CreateMediaServicesClientAsync();
+
+            return client;
+        }
+
+        private async Task<IAzureMediaServicesClient> CreateMediaServicesClientAsync()
+        {
+            var credentials = await GetCredentialsAsync();
+
+            return new AzureMediaServicesClient(new Uri(config.GetSection("ArmEndpoint").Value), credentials)
+            {
+                SubscriptionId = config.GetSection("SubscriptionId").Value
+            };
+        }
+
+        private async Task<ServiceClientCredentials> GetCredentialsAsync()
+        {
+            ClientCredential clientCredential = new ClientCredential(config.GetSection("AadClientId").Value, config.GetSection("AadSecret").Value);
+            return await ApplicationTokenProvider.LoginSilentAsync(config.GetSection("AadTenantId").Value, clientCredential, ActiveDirectoryServiceSettings.Azure);
         }
     }
 }

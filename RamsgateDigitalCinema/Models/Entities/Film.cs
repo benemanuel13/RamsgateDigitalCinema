@@ -12,7 +12,13 @@ namespace RamsgateDigitalCinema.Models.Entities
         [Description("Universal")]
         Universal,
         [Description("Parental Guidence")]
-        ParentalGuidence
+        ParentalGuidence,
+        [Description("12A")]
+        X12A,
+        [Description("15")]
+        X15,
+        [Description("18")]
+        X18
     }
 
     public class Film

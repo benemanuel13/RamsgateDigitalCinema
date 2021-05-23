@@ -17,7 +17,7 @@
         }
 
         .synopsis {
-            font-weight: bolder;
+            
         }
 
         .still {
@@ -28,51 +28,79 @@
 
 <div class="container">
     <div class="row" style="margin-bottom: 10px;">
-        <!--<div class="col-md-7">
-            <img id="poster" style="width: 100%; padding: 20px;" />
-        </div>-->
-        <div class="col-md-7 row">
-        @foreach(var still in Model.FilmDetails.StillUrls)
-        {
-            <div class="col-md-4">
-                <img class="still" src="@still.Url" />
-            </div>
+        
+        @{
+            string stillwidth = "7";
+
+            if (Model.FilmDetails.StillUrls.Count() == 0)
+            {
+                stillwidth = "12";
+            }
         }
+
+        @if (Model.FilmDetails.StillUrls.Count() > 0)
+        {
+            <div class="col-md-5">
+                @foreach (var still in Model.FilmDetails.StillUrls)
+                {
+                    <img class="still" src="@still.Url" style="margin: 15px;" /><br/>
+                }
         </div>
-        <div class="col-md-5">
+        }
+
+        <div class="col-md-@(stillwidth)">
             <div class="film-title">@Model.Film.Title</div>
-            <div>@Model.FilmDetails.CountryOfOrigin | @Model.FilmDetails.FilmLength.ToString() &nbsp;mins</div>
+            <div>@Model.FilmDetails.CountryOfOrigin | @Model.FilmDetails.FilmLength.ToString() mins | @Model.Film.Rating.GetDescription()</div>
             <div class="directed-by">directed by @Model.Film.Director</div> <br /><br />
             <div class="synopsis">@Model.FilmDetails.Synopsis</div>
-            <div>with Jane Doe, William Shakespeare and Bill Gates</div><br /><br /><br />
-            <div style="font-weight: bolder;">@Model.Film.Showing.ToString("dddd dd MMMM - HH:mm") &nbsp; @Model.FilmDetails.Screen.GetDescription()</div>
-            <br />
-            @if (ViewBag.Booked == false)
+
+            @if (!string.IsNullOrEmpty(Model.FilmDetails.Cast))
             {
-                <button class="btn btn-danger" style="width: 120px;" onclick="buyTicket()">Buy Ticket</button>
+                <br /><div>with @Model.FilmDetails.Cast</div><br /><br /><br />
             }
             else
             {
-                <div style="text-align: center; font-size: 25px; font-weight: bolder; color: red;">You Have Booked This Film</div>
+                <br /><br /><br />
             }
+
+            @if (ViewBag.Booked == false && Model.Film.FilmCollectionID == null)
+            {
+                <button class="btn btn-danger pull-right" style="width: 120px; float: right;" onclick="buyTicket()">Book Ticket</button>
+            }
+            else if(Model.Film.FilmCollectionID == null)
+            {
+                <div class="pull-right" style="text-align: center; font-size: 25px; font-weight: bolder; color: red;">You Have Booked This Film</div>
+            }
+            <div style="font-weight: bolder;">@Model.Film.Showing.ToString("dddd dd MMMM - HH:mm") &nbsp; @Model.FilmDetails.Screen.GetDescription()</div>
+            <br />
         </div>
     </div>
+        
+    
     <div class="row bg-light" style="padding: 20px;">
-        <div class="col-md-7">
-            <div style="font-size: 25px; font-weight: bolder;">TRAILER</div>
-            @if (Model.FilmDetails.TrailerUrl != null)
-            {
-                <text>
-                    <video id="trailer" style="width: 100%;" autoplay controls></video>
-                </text>
-            }
-        </div>
-        <div class="col-md-5 row">
-            <div class="col-md-6">
-                <div style="font-size: 25px; font-weight: bolder;">DIRECTOR</div>
-                @if (Model.FilmDetails.DirectorPicUrl != null)
+        @if (Model.FilmDetails.TrailerUrl != null)
+        {
+            <div class="col-md-12 row">
+                <div class=col-md-7>
+                <div style="font-size: 25px; font-weight: bolder;">TRAILER</div>
+                @if (Model.FilmDetails.TrailerUrl != null)
                 {
-                    <img id="director" src="" style="width: 100%;">
+                    <text>
+                        <video id="trailer" style="width: 100%;" autoplay controls></video>
+                    </text>
+                }
+                </div>
+        </div>
+        }
+
+        @if (Model.FilmDetails.DirectorPicUrl != null || !string.IsNullOrWhiteSpace(Model.FilmDetails.DirectorBio))
+        {
+            <div class="col-md-12 row">
+                <div class="col-md-6">
+                    <div style="font-size: 25px; font-weight: bolder;">DIRECTOR</div>
+                    @if (Model.FilmDetails.DirectorPicUrl != null)
+                    {
+                        <img id="director" src="" style="width: 100%;">
                 }
             </div>
             <div class="col-md-6">
@@ -80,6 +108,7 @@
                 <div class="synopsis">@Model.FilmDetails.DirectorBio</div>
             </div>
         </div>
+        }
     </div>
 </div>
 

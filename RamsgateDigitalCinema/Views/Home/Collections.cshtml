@@ -1,4 +1,8 @@
-﻿<div class="text-center">
+﻿@{
+    ViewData["Title"] = "Shorts";
+}
+
+<div class="text-center">
     <h1 class="display-4">Short Collections</h1>
 </div>
 
@@ -7,25 +11,25 @@
     {
         <div class="even row" style="padding: 4px;">
             <div class="col-md-12">
-                <h2>@collection.Collection.Name</h2>
                     @if(ViewBag.LoggedIn)
                         {
-                            <div style="float: right;">
-                                <button class="btn btn-success" onclick="bookFilm(@collection.Collection.FilmID)">Book Now</button>
+                            <div class="pull-right" style="float: right; vertical-align: text-top; margin-bottom: 20px;">
+                                <button class="btn btn-danger" onclick="bookFilm(@collection.Collection.FilmID)">Book Ticket</button>
                             </div>
                         }
                         else
                         {
-                            <div style="float: right;">
-                                <a href="/Identity/Account/Login" class="btn btn-success">Login To Book</a>
+                            <div class="pull-right" style="float: right; vertical-align: text-top; margin-bottom: 20px;">
+                                <a href="/Identity/Account/Login" class="btn btn-danger">Login To Book</a>
                             </div>
                         }
+                    <h2>@collection.Collection.Name</h2>
             </div>
         </div>
         @foreach(var film in collection.Films)
         {
             <div class="odd row" style="margin: 4px;">
-                <div class="col-md-2">
+                <!--<div class="col-md-2">
                     @if(film.FilmDetails == null)
                     {
                         <div style="text-align: center;">No Details</div>
@@ -34,20 +38,20 @@
                     {
                         <img class="poster" data-poster="@film.FilmDetails.PosterUrl" style="width: 200px; width: 100%;" src="" />
                     }
-                </div>
-                <div class="col-md-8">
+                </div>-->
+                <div class="col-md-7">
                     @if(film.FilmDetails == null)
                     {
                         <h4>@film.Title</h4>
-                        <div style="text-align: center;">No Details</div>
+                        <!--<div style="text-align: center;">No Details</div>-->
                     }
                     else
                     {
                         <h4>@film.Title</h4>
-                        <div>@film.FilmDetails.Synopsis</div>
+                        <!--<div>@film.FilmDetails.Synopsis</div>-->
                     }
                 </div>
-                <div class="col-md-2">
+                <div class="col-md-5">
                     @if(film.FilmDetails == null)
                     {
                         <div style="text-align: center;">No Details</div>

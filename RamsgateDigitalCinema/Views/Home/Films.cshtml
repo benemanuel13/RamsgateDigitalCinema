@@ -19,7 +19,7 @@
         @foreach(var film in category.Films)
         {
             <div class="odd row" style="margin: 4px;">
-                <div class="col-md-2">
+                <!--<div class="col-md-2">
                     @if(film.FilmDetails == null)
                     {
                         <div style="text-align: center;">No Details</div>
@@ -28,7 +28,7 @@
                     {
                         <img class="poster" data-poster="@film.FilmDetails.PosterUrl" style="width: 200px; width: 100%;" src="" />
                     }
-                </div>
+                </div>-->
                 <div class="col-md-7">
                     @if(film.FilmDetails == null)
                     {
@@ -38,10 +38,10 @@
                     else
                     {
                         <h4>@film.Title</h4>
-                        <div>@film.FilmDetails.Synopsis</div>
+                        <!--<div>@film.FilmDetails.Synopsis</div>-->
                     }
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-5">
                     @if(film.FilmDetails == null)
                     {
                         <div style="text-align: center;">No Details</div>
@@ -52,7 +52,7 @@
                         {
                             <div style="text-align: right;">
                                 <button class="btn btn-primary" onclick="viewDetails(@film.FilmID)">View Details</button>
-                                <button class="btn btn-danger" onclick="bookFilm(@film.FilmID)">Book Now</button>
+                                <button class="btn btn-danger" onclick="bookFilm(@film.FilmID)">Book Ticket</button>
                             </div>
                         }
                         else

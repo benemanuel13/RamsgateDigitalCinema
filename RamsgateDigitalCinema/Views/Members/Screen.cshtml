@@ -31,6 +31,7 @@
 {
     <script>
         var startTime = moment('@Model.Film.Showing.ToString("dd/MM/yyyy HH:mm")', "DD/MM/YYYY HH:mm")
+        var currentTime = moment('@ViewBag.CurrentTime', "DD/MM/YYYY HH:mm")
 
         $(document).ready(function(){
             var screenimg = "/img/Screen" + "@Model.Screen.ToString()" + ".png";
@@ -51,7 +52,9 @@
 
         function updateTime()
         {
-            var ms = startTime.diff(moment());
+            currentTime = currentTime.add(1, 'seconds');
+
+            var ms = startTime.diff(currentTime);
             var d = moment.duration(ms);
             var hrs = Math.floor(d.asHours());
 

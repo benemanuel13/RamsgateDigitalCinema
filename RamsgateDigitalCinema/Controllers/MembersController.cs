@@ -62,6 +62,8 @@ namespace RamsgateDigitalCinema.Controllers
 
             DateTime currentTime = await GetLocationTime();
 
+            ViewBag.CurrentTime = currentTime.ToString("dd/MM/yyyy HH:mm");
+
             var nextFilm = db.Films.Include(f => f.FilmCollection).Include(f => f.FilmCategory).Join(db.FilmDetails, f => f.FilmID, fd => fd.FilmID, (f, fd) => new ScreenFilmDetails() { Film = f, FilmDetails = fd }).Where(
                     x => x.FilmDetails.Screen == screen && x.Film.Showing > currentTime && x.Film.FilmCategory.IsViewable).OrderBy(x => x.Film.Showing).Where(x => (x.Film.FilmCollectionID == null || x.Film.FilmCollectionID == 0) || x.Film.Title == "Collection").FirstOrDefault();
 

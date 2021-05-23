@@ -17,6 +17,22 @@
         margin: auto;
     }
 
+    .modal-full {
+        min-width: 100%;
+        min-height: 100%;
+        margin: 0;
+    }
+
+    .modal-full .modal-content {
+        min-width: 100%;
+        min-height: 100%;
+    }
+
+    @@media screen and (max-width: 900px) {
+        .programme {
+            display: none;
+        }
+    }
     </style>
 
     @await RenderSectionAsync("CSS", required: false)
@@ -35,12 +51,12 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark font-weight-bold" asp-area="" asp-controller="Home" asp-action="Index">HOME</a>
                         </li>
-                        <li class="nav-item">
+                        <li class="nav-item programme">
                             <a class="nav-link text-dark font-weight-bold" asp-area="" asp-controller="Home" asp-action="Programme">PROGRAMME</a>
                         </li>
                         <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle text-dark font-weight-bold" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    <label>FILMS</label>
+                                    FILMS
                                 </a>
                                 <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                                     <a class="dropdown-item" href="/Home/Films">Film List</a>
