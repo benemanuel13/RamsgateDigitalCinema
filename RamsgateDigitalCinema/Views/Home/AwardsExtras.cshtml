@@ -1,0 +1,128 @@
+﻿@model RamsgateDigitalCinema.ViewModels.Home.AwardsExtrasViewModel
+@using RamsgateDigitalCinema.Models.Entities
+
+
+@{
+    ViewData["Title"] = "Shorts";
+}
+
+<div class="text-center">
+    <h3 class="" style="margin-bottom: 20px;">EVENTS</h3>
+</div>
+
+<div class="container">
+    <div class="even row" style="padding: 4px; background-color: #666632; color: #b7b792; padding: 5px; ">
+        <div class="col-md-12">
+            <h2>Saturday 19th June</h2>
+        </div>
+    </div>
+</div>
+
+<div class="container" style="margin-bottom: 20px;">
+    @foreach (var film in Model.Saturday)
+    {
+        <div class="even row" style="padding: 4px; background-color: white; color: black; padding: 5px; ">
+            <div class="col-md-7">
+                <h4>@film.Title</h4>
+            </div>
+            <div class="col-md-5">
+                <div style="text-align: right;">
+                    @if (ViewBag.LoggedIn)
+                    {
+                        @if (((List<MemberFilm>)ViewBag.BookedFilms).Where(bf => bf.FilmID == film.FilmID).Any())
+                        {
+                            <!--if (film.Showing < (DateTime)ViewBag.CurrentTime)
+            {
+                <a class="btn btn-danger" href="/Members/ShowFilm/@film.FilmID">Watch Now</a>
+            }
+            else
+            {-->
+                            <span class="btn btn-outline-danger">Film Booked</span>
+                            <!--}-->
+                        }
+                        else
+                        {
+                            <!--<button class="btn btn-danger" onclick="bookFilm(@film.FilmID)">Book Ticket</button>-->
+                        }
+                    }
+                    else
+                    {
+                        <!--<a href="/Identity/Account/Login" class="btn btn-success">Login To Book</a>-->
+                    }
+                    <span>@film.Showing.ToString("HH:mm")</span>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+
+<div class="container">
+    <div class="even row" style="padding: 4px; background-color: #666632; color: #b7b792; padding: 5px; ">
+        <div class="col-md-12">
+            <h2>Sunday 20th June</h2>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    @foreach (var film in Model.Sunday)
+    {
+        <div class="even row" style="padding: 4px; background-color: white; color: black; padding: 5px; ">
+            <div class="col-md-7">
+                <h4>@film.Title</h4>
+            </div>
+            <div class="col-md-5">
+                <div style="text-align: right;">
+                    @if (ViewBag.LoggedIn)
+                    {
+                        @if (((List<MemberFilm>)ViewBag.BookedFilms).Where(bf => bf.FilmID == film.FilmID).Any())
+                        {
+                            <!--if (film.Showing < (DateTime)ViewBag.CurrentTime)
+                            {
+                                <a class="btn btn-danger" href="/Members/ShowFilm/@film.FilmID">Watch Now</a>
+                            }
+                            else
+                            {-->
+                                <span class="btn btn-outline-danger">Film Booked</span>
+                            <!--}-->
+                        }
+                        else
+                        {
+                            <!--<button class="btn btn-danger" onclick="bookFilm(@film.FilmID)">Book Ticket</button>-->
+                        }
+                    }
+                    else
+                    {
+                        <!--<a href="/Identity/Account/Login" class="btn btn-success">Login To Book</a>-->
+                    }
+                    <span>@film.Showing.ToString("HH:mm")</span>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts
+{
+    <script>
+        $(document).ready(function () {
+            $(".poster").each(function (pos, item) {
+                var url = "https://www.ramsgatedigitalcinema.co.uk";
+                var poster = $(item).data("poster");
+
+                var finalUrl = url + poster;
+
+                $(item).attr('src', finalUrl);
+            });
+        });
+
+        function bookFilm(id) {
+            setTimeout(window.location.href = '/Members/BookFilm/' + id, 500);
+        }
+
+        function viewDetails(id) {
+            setTimeout(window.location.href = '/Home/FilmDetails/' + id, 500);
+        }
+    </script>
+}

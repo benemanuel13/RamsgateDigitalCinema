@@ -41,7 +41,8 @@
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light border-bottom box-shadow mb-3">
             <div class="container">
-                <img src="~/img/mainlogo.png" height="120" width="120" /><img src="~/img/logotext.jpg" class="logotext" />
+                <!--<img src="~/img/mainlogo.png" height="120" width="120" /><img src="~/img/logotext.jpg" class="logotext" />-->
+                <img src="~/img/FightBackLogo.jpg" height="120" width="120" />
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -51,28 +52,12 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark font-weight-bold" asp-area="" asp-controller="Home" asp-action="Index">HOME</a>
                         </li>
-                        <li class="nav-item programme">
-                            <a class="nav-link text-dark font-weight-bold" asp-area="" asp-controller="Home" asp-action="Programme">PROGRAMME</a>
-                        </li>
-                        <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle text-dark font-weight-bold" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    FILMS
-                                </a>
-                                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                    <a class="dropdown-item" href="/Home/Films">Film List</a>
-                                    <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item" href="/Members/BookedFilms">My Booked Films</a>
-                                </div>
-                            </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark font-weight-bold" asp-area="" asp-controller="Home" asp-action="Collections">SHORTS</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark font-weight-bold" asp-area="" asp-controller="Home" asp-action="Schedule">SCHEDULE</a>
-                        </li>
                         @if (User.Identity.IsAuthenticated)
                         {
-                            <li class="nav-item dropdown">
+                            <li class="nav-item">
+                                <a class="nav-link text-dark font-weight-bold" href="/Members/AwardsScreen">MAIN SCREEN</a>
+                            </li>
+                            <!--<li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle text-dark font-weight-bold" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                     SCREENS
                                 </a>
@@ -82,8 +67,46 @@
                                     <a class="dropdown-item" href="/Members/Screen?screen=2">Screen 3</a>
                                     <a class="dropdown-item" href="/Members/Screen?screen=3">Screen 4</a>
                                 </div>
-                            </li>
+                            </li>-->
                         }
+                        <li class="nav-item programme">
+                            <a class="nav-link text-dark font-weight-bold" asp-area="" asp-controller="Home" asp-action="Programme">PROGRAMME</a>
+                        </li>
+                        <li class="nav-item programme">
+                            <a class="nav-link text-dark font-weight-bold" href="/Home/AwardsFilms">FILMS</a>
+                        </li>
+                        @if (User.Identity.IsAuthenticated)
+                        {   
+                            <text>
+                            <li class="nav-item programme">
+                                <a class="nav-link text-dark font-weight-bold" href="/Members/BookedFilms">BOOKED FILMS</a>
+                            </li>
+                            </text>
+                        }
+                        <!--<li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-dark font-weight-bold" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                FILMS
+                            </a>
+                            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                <a class="dropdown-item" href="/Home/Films">Feature Films</a>
+                                <a class="dropdown-item" href="/Home/Collections">Short Collections</a>
+                                @if (User.Identity.IsAuthenticated)
+                                {
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item" href="/Members/BookedFilms">My Booked Films</a>
+                                }
+                            </div>
+                        </li>-->
+                        <li class="nav-item programme">
+                            <a class="nav-link text-dark font-weight-bold" asp-area="" asp-controller="Home" asp-action="AwardsExtras">EVENTS</a>
+                        </li>
+                        <!--<li class="nav-item">
+                            <a class="nav-link text-dark font-weight-bold" asp-area="" asp-controller="Home" asp-action="Collections">SHORTS</a>
+                        </li>-->
+                        <!--<li class="nav-item">
+                            <a class="nav-link text-dark font-weight-bold" asp-area="" asp-controller="Home" asp-action="Schedule">SCHEDULE</a>
+                        </li>-->
+
                     </ul>
                     <partial name="_LoginPartial" />
                 </div>

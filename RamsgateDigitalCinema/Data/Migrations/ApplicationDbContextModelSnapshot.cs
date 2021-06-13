@@ -283,6 +283,9 @@ namespace RamsgateDigitalCinema.Data.Migrations
                     b.Property<int?>("FilmCollectionID")
                         .HasColumnType("int");
 
+                    b.Property<int?>("QuestionnaireID")
+                        .HasColumnType("int");
+
                     b.Property<int>("Rating")
                         .HasColumnType("int");
 
@@ -310,6 +313,8 @@ namespace RamsgateDigitalCinema.Data.Migrations
 
                     b.HasIndex("FilmCollectionID");
 
+                    b.HasIndex("QuestionnaireID");
+
                     b.ToTable("Films");
                 });
 
@@ -325,6 +330,9 @@ namespace RamsgateDigitalCinema.Data.Migrations
 
                     b.Property<bool>("IsViewable")
                         .HasColumnType("bit");
+
+                    b.Property<int>("OrderPosition")
+                        .HasColumnType("int");
 
                     b.HasKey("FilmCategoryID");
 
@@ -343,6 +351,9 @@ namespace RamsgateDigitalCinema.Data.Migrations
 
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("int");
 
                     b.HasKey("FilmCollectionID");
 
@@ -568,6 +579,84 @@ namespace RamsgateDigitalCinema.Data.Migrations
                     b.ToTable("PayPalDetails");
                 });
 
+            modelBuilder.Entity("RamsgateDigitalCinema.Models.Questionnaire", b =>
+                {
+                    b.Property<int>("QuestionnaireID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("Age")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Booked")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("BookedEvent")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("ComeNext")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("DoBetter")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Email")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Event")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("FavouriteFilmID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FilmID")
+                        .HasColumnType("int");
+
+                    b.Property<string>("FilmTitle")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Gender")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("Industry")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsCollection")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("Like")
+                        .HasColumnType("int");
+
+                    b.Property<int>("LikeFestival")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MemberID")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Networking")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Overall")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TheEvents")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TheFilms")
+                        .HasColumnType("int");
+
+                    b.Property<int>("WhereFrom")
+                        .HasColumnType("int");
+
+                    b.HasKey("QuestionnaireID");
+
+                    b.ToTable("Questionnaires");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -630,6 +719,10 @@ namespace RamsgateDigitalCinema.Data.Migrations
                     b.HasOne("RamsgateDigitalCinema.Models.Entities.FilmCollection", "FilmCollection")
                         .WithMany("Films")
                         .HasForeignKey("FilmCollectionID");
+
+                    b.HasOne("RamsgateDigitalCinema.Models.Questionnaire", null)
+                        .WithMany("Films")
+                        .HasForeignKey("QuestionnaireID");
 
                     b.Navigation("FilmCategory");
 
@@ -713,6 +806,11 @@ namespace RamsgateDigitalCinema.Data.Migrations
             modelBuilder.Entity("RamsgateDigitalCinema.Models.Localisation.SubRegion", b =>
                 {
                     b.Navigation("Countries");
+                });
+
+            modelBuilder.Entity("RamsgateDigitalCinema.Models.Questionnaire", b =>
+                {
+                    b.Navigation("Films");
                 });
 #pragma warning restore 612, 618
         }

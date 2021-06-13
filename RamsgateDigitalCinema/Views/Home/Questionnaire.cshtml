@@ -1,0 +1,178 @@
+﻿@model RamsgateDigitalCinema.Models.Questionnaire
+
+@{
+    ViewData["Title"] = "Questionnaire";
+
+    string preferred = "preferred ";
+
+    if (!Model.IsCollection)
+    {
+        preferred = "";
+    }
+}
+
+@using (Html.BeginForm())
+{
+
+@Html.HiddenFor(x => x.FilmID)
+@Html.HiddenFor(x => x.MemberID)
+
+<div class="text-center">
+    <h3 class="" style="margin-bottom: 20px;">QUESTIONNAIRE for @Model.FilmTitle.</h3>
+</div>
+
+@if (Model.Films != null)
+{
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <label>Please choose your favourite film from the collection:</label>
+            </div>
+            <div class="col-md-6">
+                @Html.DropDownListFor(x => x.FavouriteFilmID, new SelectList(Model.Films, "FilmID", "Title"), htmlAttributes: new { @class = "form-control" })
+            </div>
+        </div>
+    </div>
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-6">
+            <label>
+                On a scale of 1 - to 10, where 1 is exteremely bad to 10 is excellent how would you rate the @(preferred)film?
+            </label>
+        </div>
+        <div class="col-md-6">
+            @Html.DropDownListFor(x => x.Like, new SelectList((List<RamsgateDigitalCinema.ViewModels.Home.ScaleViewModel>)ViewBag.Scales, "Value", "Text"), htmlAttributes: new { @class = "form-control" })
+        </div>
+        <div class="col-md-6">
+            <label>
+                On a scale of 1 - to 10, where 1 is exteremely bad to 10 is excellent how would you rate the event?
+            </label>
+        </div>
+        <div class="col-md-6">
+            @Html.DropDownListFor(x => x.LikeFestival, new SelectList((List<RamsgateDigitalCinema.ViewModels.Home.ScaleViewModel>)ViewBag.Scales, "Value", "Text"), htmlAttributes: new { @class = "form-control" })
+        </div>
+        <div class="col-md-6">
+            <label>
+                How many films did you book, or do you intend to book in total?
+            </label>
+        </div>
+        <div class="col-md-6">
+            @Html.TextBoxFor(x => x.Booked, htmlAttributes: new { @class = "form-control" })
+        </div>
+        <div class="col-md-6">
+            <label>
+                Did you book any event, which one? Did you enjoy it?
+            </label>
+        </div>
+        <div class="col-md-6">
+            @Html.RadioButtonFor(x => x.BookedEvent, true)  Yes &nbsp;&nbsp;
+            @Html.RadioButtonFor(x => x.BookedEvent, false)  No <br />
+            @Html.TextBoxFor(x => x.Event, htmlAttributes: new { @class = "form-control" })
+        </div>
+        <div class="col-md-6">
+            <label>
+                On a scale of 1 - to 10, where 1 is exteremely bad to 10 is excellent how would you rate the following?
+            </label>
+        </div>
+        <div class="col-md-6 row">
+            <div class="col-md-6">
+                <label>The overall programme</label>
+            </div>
+            <div class="col-md-6">
+                @Html.DropDownListFor(x => x.Overall, new SelectList((List<RamsgateDigitalCinema.ViewModels.Home.ScaleViewModel>)ViewBag.Scales, "Value", "Text"), htmlAttributes: new { @class = "form-control" })<br />
+            </div>
+            <div class="col-md-6">
+                <label>The films</label>
+            </div>
+            <div class="col-md-6">
+                @Html.DropDownListFor(x => x.TheFilms, new SelectList((List<RamsgateDigitalCinema.ViewModels.Home.ScaleViewModel>)ViewBag.Scales, "Value", "Text"), htmlAttributes: new { @class = "form-control" })<br />
+            </div>
+            <div class="col-md-6">
+                <label>The events</label>
+            </div>
+            <div class="col-md-6">
+                @Html.DropDownListFor(x => x.TheEvents, new SelectList((List<RamsgateDigitalCinema.ViewModels.Home.ScaleViewModel>)ViewBag.Scales, "Value", "Text"), htmlAttributes: new { @class = "form-control" })<br />
+            </div>
+            <div class="col-md-6">
+                <label>The networking opportunities (if applicable)</label>
+            </div>
+            <div class="col-md-6">
+                @Html.DropDownListFor(x => x.Networking, new SelectList((List<RamsgateDigitalCinema.ViewModels.Home.ScaleViewModel>)ViewBag.Scales, "Value", "Text"), htmlAttributes: new { @class = "form-control" })
+            </div>
+        </div>
+        <div class="col-md-6">
+            <label>
+                What could we do better?
+            </label>
+        </div>
+        <div class="col-md-6">
+            @Html.TextBoxFor(x => x.DoBetter, htmlAttributes: new { @class = "form-control" })
+        </div>
+        <div class="col-md-6">
+            <label>
+                Do you intend to come to the festival in Ramsgate next year?
+            </label>
+        </div>
+        <div class="col-md-6">
+            @Html.RadioButtonFor(x => x.ComeNext, true)  Yes &nbsp;&nbsp;
+            @Html.RadioButtonFor(x => x.ComeNext, false)  No <br />
+        </div>
+        <div class="col-md-6">
+            <label>Where are you from?</label>
+        </div>
+        <div class="col-md-6">
+            @Html.DropDownListFor(x => x.WhereFrom, new SelectList((List<RamsgateDigitalCinema.ViewModels.Home.ScaleViewModel>)ViewBag.Locations, "Value", "Text"), htmlAttributes: new { @class = "form-control" })
+        </div>
+        <div class="col-md-6">
+            <label>
+                Do you have a film in the festival, or do you work in the film industry?
+            </label>
+        </div>
+        <div class="col-md-6">
+            @Html.RadioButtonFor(x => x.Industry, true)  Yes &nbsp;&nbsp;
+            @Html.RadioButtonFor(x => x.Industry, false)  No <br />
+        </div>
+        <div class="col-md-6">
+            <label>
+                Are you?
+            </label>
+        </div>
+        <div class="col-md-6">
+            @Html.DropDownListFor(x => x.Gender, new SelectList((List<RamsgateDigitalCinema.ViewModels.Home.ScaleViewModel>)ViewBag.Gender, "Value", "Text"), htmlAttributes: new { @class = "form-control" })
+        </div>
+        <div class="col-md-6">
+            <label>
+                Are you?
+            </label>
+        </div>
+        <div class="col-md-6">
+            @Html.DropDownListFor(x => x.Age, new SelectList((List<RamsgateDigitalCinema.ViewModels.Home.ScaleViewModel>)ViewBag.Ages, "Value", "Text"), htmlAttributes: new { @class = "form-control" })
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <h5>
+        Now, thanks to our Ramsgate sponsors the galleries McGillan & Woodell and Nice-Things,
+        if you would like to enter our raffle to win the marvellous framed limited print edition by Lizzie Fright, or the lovely table set by Jenny Duff, please leave your name and email address.
+    </h5>
+    <div class="col-md-6">
+        <label>Name</label>
+    </div>
+    <div class="col-md-6">
+        @Html.TextBoxFor(x => x.Name, htmlAttributes: new { @class = "form-control" })
+    </div>
+    <div class="col-md-6">
+        <label>Email</label>
+    </div>
+    <div class="col-md-6">
+        @Html.TextBoxFor(x => x.Email, htmlAttributes: new { @class = "form-control" })
+    </div>
+</div>
+
+<div class="container">
+    <button class="btn btn-danger">Subnit</button>
+</div>
+}

@@ -1,0 +1,207 @@
+﻿@model RamsgateDigitalCinema.ViewModels.Home.CollectionsViewModel
+@using RamsgateDigitalCinema.Models.Entities
+@using RamsgateDigitalCinema.Data
+
+@{
+    ViewData["Title"] = "Films";
+
+    ApplicationDbContext db = ViewBag.Database;
+}
+
+<div class="text-center">
+    <h3 class="" style="margin-bottom: 20px;">AWARDS FILMS</h3>
+</div>
+
+<div class="container">
+    <div class="even row" style="padding: 4px; background-color: #666632; color: #b7b792; padding: 5px; ">
+        <div class="col-md-12">
+            <h2>Feature Film</h2>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="even row" style="padding: 4px; background-color: white; color: black; padding: 5px; ">
+        <div class="col-md-7">
+            <h4>ONCE A HERO</h4>
+        </div>
+        <div class="col-md-5">
+            <div style="text-align: right;">
+                <button class="btn btn-primary" onclick="viewDetails(251)">View Details</button>
+                @if (ViewBag.LoggedIn)
+                {
+                    @if (((List<MemberFilm>)ViewBag.BookedFilms).Where(bf => bf.FilmID == 251).Any())
+                    {
+                        if (DateTime.Parse("2021-06-20 18:30") < (DateTime)ViewBag.CurrentTime)
+                        {
+                            <a class="btn btn-danger" href="/Members/ShowFilm/251">Watch Now</a>
+                        }
+                        else
+                        {
+                            <span class="btn btn-outline-danger">Film Booked</span>
+                        }
+                    }
+                    else
+                    {
+                        <button class="btn btn-danger" onclick="bookFilm(251)">Book Ticket</button>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="even row" style="padding: 4px; background-color: #666632; color: #b7b792; padding: 5px; ">
+        <div class="col-md-12">
+            <h2>Short Collections</h2>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    @foreach (var collection in Model.Collections)
+    {
+        string subTitle = "";
+        bool showShortFilm = false;
+
+        string goGold = "";
+        string backGold = "";
+
+        string filmBack = " background-color: black; ";
+        string filmColor = " color: #c59d28; ";
+
+        if (collection.Collection.FilmCollectionID == 15)
+        {
+            subTitle = "ANCHOR AWARDS COMPETITIONS";
+            showShortFilm = true;
+        }
+        else if (collection.Collection.FilmCollectionID == 1)
+        {
+            subTitle = "WEB SERIES / TV PILOTS";
+            filmBack = " background-color: white; ";
+        }
+        else if (collection.Collection.FilmCollectionID == 19)
+        {
+            goGold = " color: #c59d28; ";
+            backGold = " background-color: white; ";
+        }
+        else if (collection.Collection.FilmCollectionID == 18)
+        {
+            goGold = " color: #c59d28; ";
+            backGold = " background-color: black; ";
+        }
+        else if (collection.Collection.FilmCollectionID == 9)
+        {
+            subTitle = "ON SCREEN COLLECION";
+        }
+        else if (collection.Collection.FilmCollectionID == 3)
+        {
+            subTitle = "YOUTH PROGRAMME";
+        }
+
+        if (subTitle != "")
+        {
+            <div class="even row" style="padding: 4px; @filmBack @filmColor padding: 5px;">
+                <div class="col-md-12">
+                    <h3>@subTitle.ToUpper()</h3>
+                </div>
+            </div>
+
+            if (showShortFilm)
+            {
+                <div class="even row" style="padding: 4px; background-color: white; color: #c59d28; padding: 5px;">
+                    <div class="col-md-12">
+                        <h4>SHORT FILMS</h4>
+                    </div>
+                </div>
+            }
+        }
+
+        <div class="even row" style="padding: 4px; color: #666632; background-color: #c3cfa8">
+            <div class="col-md-12">
+                @if (ViewBag.LoggedIn)
+                {
+                    @if (((List<MemberFilm>)ViewBag.BookedFilms).Where(bf => bf.FilmID == collection.Collection.FilmID).Any())
+                    {
+                        Film film = db.Films.Find(collection.Collection.FilmID);
+
+                        if (film.Showing < (DateTime)ViewBag.CurrentTime)
+                        {
+                            <a style="float: right;" class="btn btn-danger pull-right" href="/Members/ShowFilm/@film.FilmID">Watch Now</a>
+                        }
+                        else
+                        {
+                            <span style="float: right;" class="btn btn-outline-danger pull-right">Collection Booked</span>
+                        }
+                    }
+                    else
+                    {
+                        <div class="pull-right" style="float: right; margin-bottom: 10px; margin-top: 10px;">
+                            <button class="btn btn-danger" onclick="bookFilm(@collection.Collection.FilmID)">Book Ticket</button>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="pull-right" style="float: right; margin-bottom: 10px; margin-top: 10px;">
+                        <a href="/Identity/Account/Login" class="btn btn-success">Login To Book</a>
+                    </div>
+                }
+                <h3>@collection.Collection.Name</h3>
+            </div>
+        </div>
+        @foreach (var film in collection.Films)
+        {
+            <div class="even row" style="margin: 4px;">
+                <div class="col-md-7">
+                    @if (film.FilmDetails == null)
+                    {
+                        <h4>@film.Title.ToUpper()</h4>
+                    }
+                    else
+                    {
+                        <h4>@film.Title.ToUpper()</h4>
+                        <!--<div>@film.FilmDetails.Synopsis</div>-->
+                    }
+                </div>
+                <div class="col-md-5">
+                    @if (film.FilmDetails == null)
+                    {
+                        <div style="text-align: center;"></div>
+                    }
+                    else
+                    {
+                        <div style="float: right;">
+                            <button class="btn btn-primary" onclick="viewDetails(@film.FilmID)">View Details</button>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    }
+</div>
+
+@section Scripts
+{
+    <script>
+        $(document).ready(function () {
+            $(".poster").each(function (pos, item) {
+                var url = "https://www.ramsgatedigitalcinema.co.uk";
+                var poster = $(item).data("poster");
+
+                var finalUrl = url + poster;
+
+                $(item).attr('src', finalUrl);
+            });
+        });
+
+        function bookFilm(id) {
+            setTimeout(window.location.href = '/Members/BookFilm/' + id, 500);
+        }
+
+        function viewDetails(id) {
+            setTimeout(window.location.href = '/Home/FilmDetails/' + id, 500);
+        }
+    </script>
+}

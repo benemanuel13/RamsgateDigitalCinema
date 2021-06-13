@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RamsgateDigitalCinema.Models.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -17,5 +18,7 @@ namespace RamsgateDigitalCinema.ViewModels.Home
         public string FilmTitle { get; set; }
         public string Rating { get; set; }
         public string PosterUrl { get; set; }
+
+        public FilmDetails FilmDetails { get; set; }
     }
 }

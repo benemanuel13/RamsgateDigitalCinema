@@ -1,0 +1,530 @@
+﻿@model RamsgateDigitalCinema.ViewModels.Home.ExtrasViewModel
+@using RamsgateDigitalCinema.Models.Entities
+
+@{
+    ViewData["Title"] = "Extras";
+}
+
+<div class="text-center">
+    <h3 class="" style="margin-bottom: 20px;">EVENTS</h3>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12" style="background-color: black; color: #c59d28; padding: 5px;">
+            <h3>Thursday 3rd June</h3>
+        </div>
+    </div>
+    <div class="odd row" style="margin: 4px;">
+        <div class="col-md-7">
+            <h4>15:00 VFX In Short Films</h4>
+        </div>
+        <div class="col-md-5">
+            @if (ViewBag.LoggedIn)
+                {
+            <div style="text-align: right;">
+                @if (((List<MemberFilm>)ViewBag.BookedFilms).Where(bf => bf.FilmID == Model.VFX.FilmID).Any())
+                        {
+                            if (Model.VFX.Showing < (DateTime)ViewBag.CurrentTime)
+                            {
+                <a class="btn btn-danger" href="/Members/ShowFilm/@Model.VFX.FilmID">Watch Now</a>
+                            }
+                            else
+                            {
+                <span class="btn btn-outline-danger">Film Booked</span>
+                            }
+                        }
+                        else
+                        {
+                <button class="btn btn-danger" onclick="bookFilm(@Model.VFX.FilmID)">Book Ticket</button>
+                        }
+            </div>
+                }
+                else
+                {
+            <div style="text-align: right;">
+                <a href="/Identity/Account/Login" class="btn btn-success">Login To Book</a>
+            </div>
+                }
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="odd row" style="margin: 4px;">
+        <div class="col-md-7">
+            <h4>19:00 Opening Night Presentation</h4>
+        </div>
+        <div class="col-md-5">
+
+            @if (ViewBag.LoggedIn)
+            {
+            <div style="text-align: right;">
+                @if (((List<MemberFilm>)ViewBag.BookedFilms).Where(bf => bf.FilmID == Model.Opening.FilmID).Any())
+                    {
+                        if (Model.Opening.Showing < (DateTime)ViewBag.CurrentTime)
+                        {
+                <a class="btn btn-danger" href="/Members/ShowFilm/@Model.Opening.FilmID">Watch Now</a>
+                        }
+                        else
+                        {
+                <span class="btn btn-outline-danger">Film Booked</span>
+                        }
+                    }
+                    else
+                    {
+                <button class="btn btn-danger" onclick="bookFilm(@Model.Opening.FilmID)">Book Ticket</button>
+                    }
+            </div>
+            }
+            else
+            {
+            <div style="text-align: right;">
+                <a href="/Identity/Account/Login" class="btn btn-success">Login To Book</a>
+            </div>
+            }
+
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="odd row" style="margin: 4px;">
+        <div class="col-md-7">
+            <h4>21:15 Adverse Q &amp; A</h4>
+        </div>
+        <div class="col-md-5">
+            <!--if (ViewBag.LoggedIn)
+            {
+            <div style="text-align: right;">
+                if (((List<MemberFilm>)ViewBag.BookedFilms).Where(bf => bf.FilmID == Model.CODumentaryConverse.FilmID).Any())
+                    {
+                <span class="btn btn-outline-danger">Presentation Booked</span>
+                    }
+                    else
+                    {
+                <button class="btn btn-danger" onclick="bookFilm(Model.CODumentaryConverse.FilmID)">Book Ticket</button>
+                    }
+            </div>
+            }
+            else
+            {
+            <div style="text-align: right;">
+                <a href="/Identity/Account/Login" class="btn btn-success">Login To Book</a>
+            </div>
+            }-->
+        </div>
+    </div>
+</div>
+
+<!--
+<div class="container">
+
+    <div class="odd row" style="margin: 4px;">
+        <div class="col-md-7">
+            <h4>10:00 CODumentary - In Conversation with Jonathan Beales</h4>
+        </div>
+        <div class="col-md-5">
+            @if (ViewBag.LoggedIn)
+            {
+            <div style="text-align: right;">
+                @if (((List<MemberFilm>)ViewBag.BookedFilms).Where(bf => bf.FilmID == Model.CODumentaryConverse.FilmID).Any())
+                    {
+                <span class="btn btn-outline-danger">Presentation Booked</span>
+                    }
+                    else
+                    {
+                <button class="btn btn-danger" onclick="bookFilm(@Model.CODumentaryConverse.FilmID)">Book Ticket</button>
+                    }
+            </div>
+            }
+            else
+            {
+            <div style="text-align: right;">
+                <a href="/Identity/Account/Login" class="btn btn-success">Login To Book</a>
+            </div>
+            }
+        </div>
+    </div>
+</div>-->
+<!--
+<div class="container">
+    <div class="row">
+        <div class="col-md-12" style="background-color: black; color: #c59d28; padding: 5px;">
+            <h3>Friday 4th June</h3>
+        </div>
+    </div>
+    <div class="odd row" style="margin: 4px;">
+        <div class="col-md-7">
+            <h4>12.45 CODumentary</h4>
+            <p>
+                Independent documentary charting the rise of hit video game Call Of Duty & how it grew into a global blockbuster. From launch in 2003 through to the present day, the film tells a fascinating story covering the game’s epic rich history.
+            </p>
+        </div>
+        <div class="col-md-5">
+            @if (ViewBag.LoggedIn)
+            {
+            <div style="text-align: right;">
+                @if (((List<MemberFilm>)ViewBag.BookedFilms).Where(bf => bf.FilmID == Model.CODumentary.FilmID).Any())
+                    {
+                <span class="btn btn-outline-danger">Presentation Booked</span>
+                    }
+                    else
+                    {
+                <button class="btn btn-danger" onclick="bookFilm(@Model.CODumentary.FilmID)">Book Ticket</button>
+                    }
+            </div>
+            }
+            else
+            {
+            <div style="text-align: right;">
+                <a href="/Identity/Account/Login" class="btn btn-success">Login To Book</a>
+            </div>
+            }
+        </div>
+    </div>
+</div>-->
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12" style="background-color: black; color: #c59d28; padding: 5px;">
+            <h3>Friday 4th June</h3>
+        </div>
+    </div>
+    <div class="odd row" style="margin: 4px;">
+        <div class="col-md-7">
+            <h4>15:00 How To Get An Agent When Youre An Actor</h4>
+            <p>
+                Actor, Ian Sharp, joins us for a discussion about how to get an agent along with a talent agent, Marvin Godfrey, from Revolution Talent.<br /><br />
+                Ian studied acting at the Arts Educational Schools. He co-founded the film and TV production/finance company Sharp House with his wife Rebecca in 2016.  Whilst still treading the boards in various productions ranging from Les Misérables in the West End to the upcoming feature film Code of Silence, Ian has produced and executive produced multiple feature films from The Marker, Pleasure Island, The Visitor, Monsoon, Incoming, Undergods, Northern Soul and the official Sundance Film Festival selected Halston and Westwood: Punk, Icon, Activist. Sharp House are developing a range of high end international feature films and TV series.<br /><br />
+                Marvin originally started in Biochemistry before making the decision to pursue a career working in a field he has always been passionate about, talent management. Marvin has spent nearly a decade working with a range of talent from high profile, leading and award-winning actors, to recent graduates/ up and coming young performers. Marvin has his own list spanning across Film, TV and Theatre.
+            </p>
+        </div>
+        <div class="col-md-5">
+            @if (ViewBag.LoggedIn)
+            {
+            <div style="text-align: right;">
+                @if (((List<MemberFilm>)ViewBag.BookedFilms).Where(bf => bf.FilmID == Model.Agent.FilmID).Any())
+                    {
+                <span class="btn btn-outline-danger">Presentation Booked</span>
+                    }
+                    else
+                    {
+                <button class="btn btn-danger" onclick="bookFilm(@Model.Agent.FilmID)">Book Ticket</button>
+                    }
+            </div>
+            }
+            else
+            {
+            <div style="text-align: right;">
+                <a href="/Identity/Account/Login" class="btn btn-success">Login To Book</a>
+            </div>
+            }
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="odd row" style="margin: 4px;">
+        <div class="col-md-7">
+            <h4>18:00 Networking Party</h4>
+            <p>
+                Join us and share a drink as you mingle with filmmakers, actors and guests around a table.  Attendees will be rotated every ten minutes, so you’ll get opportunities to expand your network.
+            </p>
+        </div>
+        <div class="col-md-5">
+            @if (ViewBag.LoggedIn)
+            {
+            <div style="text-align: right;">
+                @if (((List<MemberFilm>)ViewBag.BookedFilms).Where(bf => bf.FilmID == Model.Network.FilmID).Any())
+                    {
+                <span class="btn btn-outline-danger">Presentation Booked</span>
+                    }
+                    else
+                    {
+                <button class="btn btn-danger" onclick="bookFilm(@Model.Network.FilmID)">Book Ticket</button>
+                    }
+            </div>
+            }
+            else
+            {
+            <div style="text-align: right;">
+                <a href="/Identity/Account/Login" class="btn btn-success">Login To Book</a>
+            </div>
+            }
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="odd row" style="margin: 4px;">
+        <div class="col-md-7">
+            <h4>21:00 White Tiger</h4>
+        </div>
+        <div class="col-md-5">
+            @if (Model.WhiteTiger.FilmDetails == null)
+            {
+            <div style="text-align: center;">No Details</div>
+            }
+            else
+            {
+                if (ViewBag.LoggedIn)
+                {
+            <div style="text-align: right;">
+                <button class="btn btn-primary" onclick="viewDetails(@Model.WhiteTiger.FilmID)">View Details</button>
+
+                @if (((List<MemberFilm>)ViewBag.BookedFilms).Where(bf => bf.FilmID == Model.WhiteTiger.FilmID).Any())
+                        {
+                            if (Model.WhiteTiger.Showing < (DateTime)ViewBag.CurrentTime)
+                            {
+                <a class="btn btn-danger" href="/Members/ShowFilm/@Model.WhiteTiger.FilmID">Watch Now</a>
+                            }
+                            else
+                            {
+                <span class="btn btn-outline-danger">Film Booked</span>
+                            }
+                        }
+                        else
+                        {
+                <button class="btn btn-danger" onclick="bookFilm(@Model.WhiteTiger.FilmID)">Book Ticket</button>
+                        }
+            </div>
+                }
+                else
+                {
+            <div style="text-align: right;">
+                <button class="btn btn-primary" onclick="viewDetails(@Model.WhiteTiger.FilmID)">View Details</button>
+                <a href="/Identity/Account/Login" class="btn btn-success">Login To Book</a>
+            </div>
+                }
+            }
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12" style="background-color: black; color: #c59d28; padding: 5px;">
+            <h3>Saturday 5th June</h3>
+        </div>
+    </div>
+    <div class="odd row" style="margin: 4px;">
+        <div class="col-md-7">
+            <h4>11:00 Rethinking Distribution, Audiences And African Cinema</h4>
+        </div>
+        <div class="col-md-5">
+            @if (ViewBag.LoggedIn)
+            {
+            <div style="text-align: right;">
+                @if (((List<MemberFilm>)ViewBag.BookedFilms).Where(bf => bf.FilmID == Model.African.FilmID).Any())
+                    {
+                <span class="btn btn-outline-danger">Presentation Booked</span>
+                    }
+                    else
+                    {
+                <button class="btn btn-danger" onclick="bookFilm(@Model.African.FilmID)">Book Ticket</button>
+                    }
+            </div>
+            }
+            else
+            {
+            <div style="text-align: right;">
+                <a href="/Identity/Account/Login" class="btn btn-success">Login To Book</a>
+            </div>
+            }
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="odd row" style="margin: 4px;">
+        <div class="col-md-7">
+            <h4>15:30 Kajaki - Kilo Two Bravo</h4>
+            <p>
+                Kajaki Dam 2006. A company of young British soldiers encounter an unexpected, terrifying enemy. A dried-out river bed, and under every step the possibility of an anti-personnel mine. A mine that could cost you your leg - or your life.
+            </p>
+        </div>
+        <div class="col-md-5">
+            @if (Model.Kajaki.FilmDetails == null)
+            {
+            <div style="text-align: center;">No Details</div>
+            }
+            else
+            {
+                if (ViewBag.LoggedIn)
+                {
+            <div style="text-align: right;">
+                <!--<button class="btn btn-primary" onclick="viewDetails(@Model.Kajaki.FilmID)">View Details</button>-->
+
+                @if (((List<MemberFilm>)ViewBag.BookedFilms).Where(bf => bf.FilmID == Model.Kajaki.FilmID).Any())
+                        {
+                            if (Model.Kajaki.Showing < (DateTime)ViewBag.CurrentTime)
+                            {
+                <a class="btn btn-danger" href="/Members/ShowFilm/@Model.Kajaki.FilmID">Watch Now</a>
+                            }
+                            else
+                            {
+                <span class="btn btn-outline-danger">Film Booked</span>
+                            }
+                        }
+                        else
+                        {
+                <button class="btn btn-danger" onclick="bookFilm(@Model.Kajaki.FilmID)">Book Ticket</button>
+                        }
+            </div>
+                }
+                else
+                {
+            <div style="text-align: right;">
+                <!--<button class="btn btn-primary" onclick="viewDetails(@Model.Kajaki.FilmID)">View Details</button>-->
+                <a href="/Identity/Account/Login" class="btn btn-success">Login To Book</a>
+            </div>
+                }
+            }
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="odd row" style="margin: 4px;">
+        <div class="col-md-7">
+            <h4>18:15 Phil Liggett the Voice of Cycling</h4>
+            <p>
+                The life of legendary television commentator Phil Liggett MBE is inextricably entwined with the history of professional cycling. During a career that has spanned five decades, 15 Olympic games and 47 Tours de France, Phil Liggett has been there for every key moment in cycling over the last half century. The heroic triumphs, the appalling tragedies, the scandals and the controversies; Phil has seen it all, and told us about it with passion, knowledge and his trademark wit. As much as anyone, Phil Liggett has shaped the way the world sees cycling.
+            </p>
+        </div>
+        <div class="col-md-5">
+            @if (ViewBag.LoggedIn)
+            {
+            <div style="text-align: right;">
+                <button class="btn btn-primary" onclick="viewDetails(@Model.Cycling.FilmID)">View Details</button>
+                @if (((List<MemberFilm>)ViewBag.BookedFilms).Where(bf => bf.FilmID == Model.Cycling.FilmID).Any())
+                    {
+                <span class="btn btn-outline-danger">Presentation Booked</span>
+                    }
+                    else
+                    {
+                <button class="btn btn-danger" onclick="bookFilm(@Model.Cycling.FilmID)">Book Ticket</button>
+                    }
+            </div>
+            }
+            else
+            {
+            <div style="text-align: right;">
+                <a href="/Identity/Account/Login" class="btn btn-success">Login To Book</a>
+            </div>
+            }
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12" style="background-color: black; color: #c59d28; padding: 5px;">
+            <h3>Sunday 6th June</h3>
+        </div>
+    </div>
+    <div class="odd row" style="margin: 4px;">
+        <div class="col-md-7">
+            <h4>10:00 CODumentary - In Conversation with Jonathan Beales</h4>
+        </div>
+        <div class="col-md-5">
+            @if (ViewBag.LoggedIn)
+            {
+            <div style="text-align: right;">
+                @if (((List<MemberFilm>)ViewBag.BookedFilms).Where(bf => bf.FilmID == Model.CODumentaryConverse.FilmID).Any())
+                    {
+                <span class="btn btn-outline-danger">Presentation Booked</span>
+                    }
+                    else
+                    {
+                <button class="btn btn-danger" onclick="bookFilm(@Model.CODumentaryConverse.FilmID)">Book Ticket</button>
+                    }
+            </div>
+            }
+            else
+            {
+            <div style="text-align: right;">
+                <a href="/Identity/Account/Login" class="btn btn-success">Login To Book</a>
+            </div>
+            }
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="odd row" style="margin: 4px;">
+        <div class="col-md-7">
+            <h4>19:15 Tonton Manu Q &amp; A</h4>
+            <p>
+
+            </p>
+        </div>
+        <div class="col-md-5">
+            @if (ViewBag.LoggedIn)
+            {
+            <div style="text-align: right;">
+                @if (((List<MemberFilm>)ViewBag.BookedFilms).Where(bf => bf.FilmID == Model.Tonton.FilmID).Any())
+                    {
+                <span class="btn btn-outline-danger">Presentation Booked</span>
+                    }
+                    else
+                    {
+                <button class="btn btn-danger" onclick="bookFilm(@Model.Tonton.FilmID)">Book Ticket</button>
+                    }
+            </div>
+            }
+            else
+            {
+            <div style="text-align: right;">
+                <a href="/Identity/Account/Login" class="btn btn-success">Login To Book</a>
+            </div>
+            }
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="odd row" style="margin: 4px;">
+        <div class="col-md-7">
+            <h4>20:30 Awards Ceremony</h4>
+            <p>
+
+            </p>
+        </div>
+        <div class="col-md-5">
+            @if (ViewBag.LoggedIn)
+            {
+            <div style="text-align: right;">
+                @if (((List<MemberFilm>)ViewBag.BookedFilms).Where(bf => bf.FilmID == Model.Awards.FilmID).Any())
+                    {
+                <span class="btn btn-outline-danger">Presentation Booked</span>
+                    }
+                    else
+                    {
+                <button class="btn btn-danger" onclick="bookFilm(@Model.Awards.FilmID)">Book Ticket</button>
+                    }
+            </div>
+            }
+            else
+            {
+            <div style="text-align: right;">
+                <a href="/Identity/Account/Login" class="btn btn-success">Login To Book</a>
+            </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts
+{
+    <script>
+        function bookFilm(id) {
+            setTimeout(window.location.href = '/Members/BookFilm/' + id, 500);
+        }
+
+        function viewDetails(id) {
+            setTimeout(window.location.href = '/Home/FilmDetails/' + id, 500);
+        }
+    </script>
+}

@@ -1,5 +1,20 @@
 ﻿@model RamsgateDigitalCinema.ViewModels.Members.BookFilmViewModel
 
+@{ 
+    ViewData["Title"] = "Book Film";
+
+    bool fiver = ViewBag.Fiver;
+
+    string donationShow = "";
+    string amount = "2.00";
+
+    if (fiver)
+    {
+        donationShow = "display: none;";
+        amount = "5.00";
+    }
+}
+
 @section CSS {
     <style>
         @@media screen and (max-width: 900px) {
@@ -15,13 +30,32 @@
         <div class="col-md-6 donation-bottom">
             <div class="card">
                 <div class="card-header">
-                    <h3>Donation Optional</h3>
+                    @if (!fiver)
+                    {
+                        <h3>Donation Optional</h3>
+                    }
+                    else
+                    { 
+                        <h3>Payment</h3>
+                    }
                 </div>
                 <div class="card-body">
-                    All tickets are FREE this year, as we know it has been difficult for many of you in these surreal times. But if you can afford a donation, we will be using the money to continue to bring independent cinema to you at a reasonable price for as long as possible.
-                    <br /><br />
-                    We are a not-for-profit organisation and your support is important to us.
-                    <br /><br />
+                    @if (!fiver)
+                    {
+                        <text>
+                        All tickets are FREE this year, as we know it has been difficult for many of you in these surreal times.But if you can afford a donation, we will be using the money to continue to bring independent cinema to you at a reasonable price for as long as possible.
+                        <br /><br />
+                        We are a not -for-profit organisation and your support is important to us.
+                        <br /><br />
+                        </text>
+                    }
+                    else
+                    { 
+                        <text>
+                        <h6>This Presentation Costs £5</h6><br/><br/>
+                        </text>
+                    }
+
                     @if(Model.FilmID != 0)
                     {
                         <text>
@@ -36,7 +70,7 @@
                     }
                 </div>
                 <div class="card-footer">
-                    <div class="row">
+                    <div class="row" style=" @donationShow ">
                         <div class="col-md-4">
                             <h5>Your Donation:</h5>
                         </div>
@@ -52,7 +86,7 @@
                             <h5>£</h5>
                         </div>
                         <div class="col-md-3">
-                            <input type="text" class="form-control" id="Donation" value="2.00" disabled>
+                            <input type="text" class="form-control" id="Donation" value="@amount" disabled>
                         </div>
                     </div>
                 </div>
@@ -78,7 +112,7 @@
                     </div>
                     <div class="row">
                         <div class="col-md-12">
-                            @if (Model.FilmID != 0)
+                            @if (Model.FilmID != 0 && !fiver)
                             {
                             <button class="btn btn-success float-right" onclick="bookFilm(false)">Continue Without Making A Donation</button>
                             }
@@ -137,7 +171,7 @@
             }
         }
     </script>
-
+    
     <!-- Implementation -->
     <script>
         //Displays PayPal buttons
@@ -268,7 +302,7 @@
                         }
                     }
                     else {
-                        $.toaster({ title: 'Bad News', priority: 'danger', message: 'Failed To Book Ticket.', timeout: 7000 });
+                        $.toaster({ title: 'Bad News', priority: 'danger', message: 'Failed To Book Ticket.  Please email admin@@ramsgatedigitalcinema.co.uk to let us know.', timeout: 7000 });
                     }
                 }
             });

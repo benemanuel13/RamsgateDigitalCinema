@@ -16,6 +16,10 @@ using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.Rest.Azure.Authentication;
 using Microsoft.Azure.Management.Media.Models;
 using Microsoft.Rest;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using RamsgateDigitalCinema.Services;
 
 namespace RamsgateDigitalCinema.Controllers
 {
@@ -33,6 +37,12 @@ namespace RamsgateDigitalCinema.Controllers
     {
         private readonly ApplicationDbContext db;
         IConfiguration config;
+
+        private static Dictionary<string, string> KeyIdentifiers = new Dictionary<string, string>();
+        static readonly object _object = new object();
+
+        private string Issuer = "myIssuer";
+        private string Audience = "myAudience";
 
         public AdminController(IConfiguration config, ApplicationDbContext context)
         {
@@ -546,6 +556,162 @@ namespace RamsgateDigitalCinema.Controllers
         {
             ClientCredential clientCredential = new ClientCredential(config.GetSection("AadClientId").Value, config.GetSection("AadSecret").Value);
             return await ApplicationTokenProvider.LoginSilentAsync(config.GetSection("AadTenantId").Value, clientCredential, ActiveDirectoryServiceSettings.Azure);
+        }
+
+        private async Task<string> GetToken(int filmID, int numUses, int expireMinutes)
+        {
+            Film film = db.Films.Find(filmID);
+            string locatorName = film.AssetName;
+
+            db.SaveChanges();
+
+            string token = config.GetSection("TokenKey").Value;
+
+            IAzureMediaServicesClient azureclient = await CreateClient();
+
+            //RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider();
+            //byte[] bytes = new byte[40];
+            //rng.GetBytes(bytes);
+            //rng.Dispose();
+            byte[] bytes = System.Convert.FromBase64String(token);
+
+            if (azureclient == null)
+            {
+                azureclient = await CreateClient();
+            }
+
+            string keyIdentifier;
+
+            lock (_object)
+            {
+                if (!KeyIdentifiers.ContainsKey(locatorName))
+                {
+                    keyIdentifier = azureclient.StreamingLocators.ListContentKeys(config.GetSection("ResourceGroup").Value, config.GetSection("AccountName").Value, locatorName + "Locator").ContentKeys.First().Id.ToString();
+                    KeyIdentifiers.TryAdd(locatorName, keyIdentifier);
+                }
+                else
+                {
+                    keyIdentifier = KeyIdentifiers[locatorName];
+                }
+            }
+
+            string endtoken = GetTokenAsync(film, Issuer, Audience, keyIdentifier, bytes, numUses, expireMinutes);
+
+            return endtoken;
+        }
+
+        private string GetTokenAsync(Film film, string issuer, string audience, string keyIdentifier, byte[] tokenVerificationKey, int numberUses, int expireMinutes)
+        {
+            var tokenSigningKey = new SymmetricSecurityKey(tokenVerificationKey);
+
+            SigningCredentials cred = new SigningCredentials(
+                tokenSigningKey,
+                SecurityAlgorithms.HmacSha256,
+                SecurityAlgorithms.Sha256Digest);
+
+            string claim = "urn:microsoft:azure:mediaservices:maxuses";
+
+            Claim[] claims = new Claim[]
+            {
+                new Claim(ContentKeyPolicyTokenClaim.ContentKeyIdentifierClaim.ClaimType, keyIdentifier),
+                new Claim(claim, numberUses.ToString())
+            };
+
+            JwtSecurityToken token = new JwtSecurityToken(
+                issuer: issuer,
+                audience: audience,
+                claims: claims,
+                notBefore: DateTime.Now.AddDays(-1),
+                //expires: film.Showing.AddDays(2),
+                expires: DateTime.Now.AddDays(7),
+                signingCredentials: cred);
+
+            JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
+
+            return handler.WriteToken(token);
+        }
+
+        public string GetMemberFilmToken(int filmID, int memberID)
+        {
+            string token = GetToken(filmID, 2, 360).Result;
+
+            var memberFilm = db.MemberFilms.Where(mf => mf.FilmID == filmID && mf.MemberID == memberID).First();
+            memberFilm.Token = token;
+
+            db.SaveChanges();
+
+            return token;
+        }
+
+        [HttpGet("SetTokens")]
+        public ActionResult SetTokens()
+        {
+            var films = db.MemberFilms.Where(t => t.Token == null).ToList();
+
+            foreach (var film in films)
+            {
+                try
+                {
+                    GetMemberFilmToken(film.FilmID, film.MemberID);
+                }
+                catch
+                { }
+            }
+
+            return Content("OK");
+        }
+
+        [HttpGet("SetScreens")]
+        public ActionResult SetScreens()
+        {
+            var collections = db.FilmCollections.ToList();
+
+            int count = 0;
+
+            foreach (var col in collections)
+            {
+                FilmDetails details = db.FilmDetails.Where(fd => fd.FilmID == col.FilmID).FirstOrDefault();
+
+                if (details != null)
+                {
+                    Screen screen = details.Screen;
+
+                    var films = db.Films.Where(f => f.FilmCollectionID == col.FilmCollectionID).ToList();
+
+                    foreach (var film in films)
+                    {
+                        FilmDetails filmDetails = db.FilmDetails.Where(fd => fd.FilmID == film.FilmID).FirstOrDefault();
+
+                        if (filmDetails != null)
+                        {
+                            filmDetails.Screen = screen;
+                            count++;
+                        }
+                    }
+                }
+            }
+
+            db.SaveChanges();
+
+            return Content("OK: " + count.ToString());
+        }
+
+        [HttpGet("RecreateTokens")]
+        public ActionResult RecreateTokens(int filmID)
+        {
+            var films = db.MemberFilms.Where(mf => mf.FilmID == filmID).ToList();
+
+            int count = 0;
+
+            foreach (var film in films)
+            {
+                film.Token = GetMemberFilmToken(film.FilmID, film.MemberID);
+                db.SaveChanges();
+
+                count++;
+            }
+
+            return Content("OK: " + count.ToString());
         }
     }
 }

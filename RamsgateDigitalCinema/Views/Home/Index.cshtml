@@ -39,7 +39,8 @@
         }
 
         .dominic {
-            height: 450px;
+            object-fit : contain;
+            height: 100%;
             width: 100%;
         }
     }
@@ -47,7 +48,7 @@
     @@media screen and (min-width: 900px) {
         .background {
             background-image: url('./img/Lobby.png');
-            height: 950px;
+            height: 870px;
             width: 100%;
             background-size: contain;
             background-repeat: no-repeat;
@@ -93,6 +94,40 @@
 </style>
 }
 
+<div class="container">
+    <div class="row" style="background-color: white; padding: 20px; border: 1px solid black;">
+        <div class="col-md-12">
+            <div style="text-align: center;">
+                <img class="small-office" src="/img/Box_office.png" style="width: 100%'" />
+            </div>
+        </div>
+    </div>
+    @if (!User.Identity.IsAuthenticated)
+    {
+        <div style="padding: 20px; background-color: #f8e8c8; margin-top: 20px;">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="text-center" style="color: black; font-size: 20px; font-weight: bolder;">Register</div><br />
+                    <div class="text-center" style="color: black; font-size: 20px;">All screenings are <span style="color: red;">FREE</span> (an optional donation will help us keep going).  Events are individually priced.</div>
+                    <div class="text-center" style="color: black; font-size: 20px;">Sign up here in order to book your tickets.</div><br />
+                </div>
+            </div>
+            <div class="row">
+                <div class=col-md-2></div>
+                <div class="col-md-5">
+                    <input id="register-email" class="form-control" placeholder="Email" style="" />
+                </div>
+                <div class="col-md-1">
+
+                </div>
+                <div class="col-md-4">
+                    <button class="btn btn-danger" onclick="submitRegistration()">SUBMIT</button>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
 <div class="background container">
     <div class="row" style="margin-top: 25px;">
         <div class="col-md-3">
@@ -111,24 +146,27 @@
             </div>
         </div> 
     </div>
+    
     <div class="row">
-        <div class="col-sm-12 col-md-4">
-            <img class="dominic" style="padding: 25px;" src="~/img/Dominic.png" />
+        <div class="col-sm-12 col-md-12">
+            <img class="dominic" style="padding: 25px;" src="~/img/Soldiers.jpg" />
         </div>
-        <div class="col-sm-12 col-md-8 background-text">
-            <div style="padding: 20px;">
-                Circumstances one again, brought us to celebrate our fifth Anniversary virtually on Ramsgate Digital Cinema.  But we're bringing you more films, more talks and workshops and the first FIGHT BACK Awards for Veterans.
+        <!--<div class="col-sm-12 col-md-8 background-text">
+            
+            <div style="padding: 20px; margin-left: 20px; font-weight: normal;">
+                Circumstances once again, brought us to celebrate our fifth Anniversary virtually on Ramsgate Digital Cinema.  But we're bringing you more films, more talks and workshops and the first FIGHT BACK Awards for Veterans.
                 <br /><br/>
-                This year, the Ramsgate Internation Film &amp; TV Festival is dedicated to one man, the wonderful artist, singer and sculptor, who designed our covetted Anchor statuette, Dominic Grant, who passed away last November.  From now on, the solid Bronze Anchor for the 
-                Best Feature Film will be known as the Dominic Grant Award.  There will be a special dedication at the Opening Gala night, with all profits from the evening to be given to the campaign to raise funds for the casting and installation of George IV status, sculpted by 
+                This year, the Ramsgate International Film &amp; TV Festival is dedicated to one man, the wonderful artist, singer and sculptor, who designed our covetted Anchor statuette, Dominic Grant, who passed away last November.  From now on, the solid Bronze Anchor for the 
+                Best Feature Film will be known as the Dominic Grant Award.  There will be a special dedication at the Opening Gala night, with all profits from the evening to be given to the campaign to raise funds for the casting and installation of George IV statue, sculpted by 
                 Dominic Grant at Ramsgate only Royal Harbour in the whole of the UK.
                 <br /><br/>
                 We would like to thank particularly the Ramsgate Town Council for their constant support over the years.<br/><br/>
                 <div style="text-align: center;">HAVE A GREAT FESTIVAL!</div>
             </div>
-        </div>
+        </div>-->
     </div>
 </div>
+
 <div class="container main-container" style="background-color: black; width: 100%; padding: 20px;">
     <div class="peach" style="font-size: 30px; font-weight: bolder; text-align: center">Showing now/next</div>
     <div class="row">
@@ -138,16 +176,23 @@
             </div>
             @if (Model.Films[0] != null)
             {
-                <div style="color: white; font-size: 25px; font-weight: bold;">@Model.Films[0].Date - @Model.Films[0].Time</div>
+                <div style="color: white; font-size: 25px; margin-bottom: 10px;">@Model.Films[0].Date - @Model.Films[0].Time</div>
                 <div>
-                    <img class="poster" src="@Model.Films[0].PosterUrl" style="width: 100%;" />
+                    @if(Model.Films[0].FilmDetails == null || Model.Films[0].FilmDetails.StillUrls.Count() == 0)
+                    {
+                        <img class="poster" src="@Model.Films[0].PosterUrl" style="width: 100%;" />
+                    }
+                    else
+                    {
+                        <img class="still" src="https://www.ramsgatedigitalcinema.co.uk@(Model.Films[0].FilmDetails.StillUrls[0].Url)" style="width: 100%;" />
+                    }
                 </div>
-                <div style="color: white; font-size: 25px; font-weight: bold; padding-bottom: 30px;">@Model.Films[0].FilmTitle [@Model.Films[0].Rating]</div>
+                <div style="color: white; font-size: 25px;; padding-bottom: 30px; margin-top: 15px;">@Model.Films[0].FilmTitle.ToUpper() [@Model.Films[0].Rating]</div>
             }
             else
             {
                 <div style="width: 100%; height: 250px;">
-                    <div style="text-align: center; color: white; font-size: 25px; font-weight: bold;">No More Films Showing</div>
+                    <div style="text-align: center; color: white; font-size: 25px;"></div>
                 </div>
             }
         </div>
@@ -157,16 +202,23 @@
             </div>
             @if (Model.Films[1] != null)
             {
-                <div style="color: white; font-size: 25px; font-weight: bold;">@Model.Films[1].Date - @Model.Films[1].Time</div>
+                <div style="color: white; font-size: 25px; margin-bottom: 10px;">@Model.Films[1].Date - @Model.Films[1].Time</div>
                 <div>
-                    <img class="poster" src="@Model.Films[1].PosterUrl" style="width: 100%;" />
+                    @if(Model.Films[1].FilmDetails == null || Model.Films[1].FilmDetails.StillUrls.Count() == 0)
+                    {
+                        <img class="poster" src="@Model.Films[1].PosterUrl" style="width: 100%;" />
+                    }
+                    else
+                    {
+                        <img class="still" src="https://www.ramsgatedigitalcinema.co.uk@(Model.Films[1].FilmDetails.StillUrls[0].Url)" style="width: 100%;" />   
+                    }
                 </div>
-                <div style="color: white; font-size: 25px; font-weight: bold; padding-bottom: 30px;">@Model.Films[1].FilmTitle [@Model.Films[1].Rating]</div>
+                <div style="color: white; font-size: 25px;; padding-bottom: 30px; margin-top: 15px;">@Model.Films[1].FilmTitle.ToUpper() [@Model.Films[1].Rating]</div>
             }
             else
             {
                 <div style="width: 100%; height: 250px;">
-                    <div style="text-align: center; color: white; font-size: 25px; font-weight: bold;">No More Films Showing</div>
+                    <div style="text-align: center; color: white; font-size: 25px:"></div>
                 </div>
             }
         </div>
@@ -178,16 +230,23 @@
             </div>
             @if (Model.Films[2] != null)
             {
-                <div style="color: white; font-size: 25px; font-weight: bold;">@Model.Films[2].Date - @Model.Films[2].Time</div>
+                <div style="color: white; font-size: 25px; margin-bottom: 10px;">@Model.Films[2].Date - @Model.Films[2].Time</div>
                 <div>
-                    <img class="poster" src="@Model.Films[2].PosterUrl" style="width: 100%;" />
+                    @if(Model.Films[2].FilmDetails == null || Model.Films[2].FilmDetails.StillUrls.Count() == 0)
+                    {
+                        <img class="poster" src="@Model.Films[2].PosterUrl" style="width: 100%;" />
+                    }
+                    else
+                    {
+                        <img class="still" src="https://www.ramsgatedigitalcinema.co.uk@(Model.Films[2].FilmDetails.StillUrls[0].Url)" style="width: 100%;" />
+                    }
                 </div>
-                <div style="color: white; font-size: 25px; font-weight: bold; padding-bottom: 30px;">@Model.Films[2].FilmTitle [@Model.Films[2].Rating]</div>
+                <div style="color: white; font-size: 25px;; padding-bottom: 30px; margin-top: 15px;">@Model.Films[2].FilmTitle.ToUpper() [@Model.Films[2].Rating]</div>
             }
             else
             {
                 <div style="width: 100%; height: 250px;">
-                    <div style="text-align: center; color: white; font-size: 25px; font-weight: bold;">No More Films Showing</div>
+                    <div style="text-align: center; color: white; font-size: 25px;"></div>
                 </div>
             }
         </div>
@@ -197,33 +256,30 @@
             </div>
             @if (Model.Films[3] != null)
             {
-                <div style="color: white; font-size: 25px; font-weight: bold;">@Model.Films[3].Date - @Model.Films[3].Time</div>
+                <div style="color: white; font-size: 25px; margin-bottom: 10px;">@Model.Films[3].Date - @Model.Films[3].Time</div>
                 <div>
-                    <img class="poster" src="@Model.Films[3].PosterUrl" style="width: 100%;" />
+                    @if(Model.Films[3].FilmDetails == null || Model.Films[3].FilmDetails.StillUrls.Count() == 0)
+                    {
+                        <img class="poster" src="@Model.Films[3].PosterUrl" style="width: 100%;" />
+                    }
+                    else
+                    {
+                        <img class="still" src="https://www.ramsgatedigitalcinema.co.uk@(Model.Films[3].FilmDetails.StillUrls[0].Url)" style="width: 100%;" />   
+                    }
                 </div>
-                <div style="color: white; font-size: 25px; font-weight: bold; padding-bottom: 30px;">@Model.Films[3].FilmTitle [@Model.Films[3].Rating]</div>
+                <div style="color: white; font-size: 25px;; padding-bottom: 30px; margin-top: 15px;">@Model.Films[3].FilmTitle.ToUpper() [@Model.Films[3].Rating]</div>
             }
             else
             {
                 <div style="width: 100%; height: 250px;">
-                    <div style="text-align: center; color: white; font-size: 25px; font-weight: bold;">No More Films Showing</div>
+                    <div style="text-align: center; color: white; font-size: 25px;"></div>
                 </div>
             }
         </div>
     </div>
-
-    
 </div>
 
-<div class="container">
-    <div class="row" style="background-color: white; padding: 20px; border: 1px solid black;">
-        <div class="col-md-12">
-            <div style="text-align: center;">
-                <img class="small-office" src="/img/Box_office.png" style="width: 100%'" />
-            </div>
-        </div>
-    </div>
-</div>
+
 <!--
 Your Date and Time: &nbsp;@(ViewBag.DateTime.ToString())<br /><br />
 
@@ -237,10 +293,13 @@ You are in: &nbsp;@(ViewBag.Country.Name)
       </div>-->
       <div class="intro modal-body text-center">
         <img class="introimage" src="~/img/Festival_design.jpg" />
+        <div class="text-center">
+            <button class="btn btn-success text-center justify-content-center" style="text-align: center; width: 240px; margin-top: 20px; margin-bottom: 20px;" onclick="dismissModal()">ENTER</button>
+        </div>
         <partial name="_Partners" />
       </div>
       <div class="modal-footer text-center justify-content-center" style="text-align: center;">
-        <button class="btn btn-success text-center justify-content-center" style="text-align: center;" onclick="dismissModal()">ENTER</button>
+        
       </div>
     </div>
   </div>
@@ -265,6 +324,13 @@ You are in: &nbsp;@(ViewBag.Country.Name)
     }
 
     <script>
+        function submitRegistration()
+        {
+            var email = $('#register-email').val();
+
+            setTimeout(window.location.href = "/Identity/Account/Register?email=" + email, 500);
+        }
+
         $(document).ready(function setPoster(poster)
         {
             $('.poster').each(function (pos, item){
@@ -278,9 +344,5 @@ You are in: &nbsp;@(ViewBag.Country.Name)
         {
             $('#intro').modal('hide');
         }
-
-        $(document).ready(function(){
-            alert("PLEASE NOTE: This site is under construction and information may be inaccurate.  Also, please DONT BOOK ANY FILMS as the booking may nor be valid for the festival.");
-        });
     </script>
 }

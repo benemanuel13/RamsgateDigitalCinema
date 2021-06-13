@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using RamsgateDigitalCinema.Data;
@@ -20,6 +21,7 @@ namespace RamsgateDigitalCinema.Controllers
         protected readonly ApplicationDbContext db;
         protected readonly IApiService _apiService;
         protected readonly IConfiguration _config;
+        protected readonly IEmailSender _emailSender;
 
         public bool UserAuthenticated => User.Identity.IsAuthenticated;
 
@@ -29,8 +31,9 @@ namespace RamsgateDigitalCinema.Controllers
 
         public Member CurrentMember { get; private set; } = null;
 
-        public BaseController(IConfiguration config, IApiService apiService, UserManager<IdentityUser> userManager, IHttpContextAccessor accessor, ApplicationDbContext context)
+        public BaseController(IEmailSender emailSender, IConfiguration config, IApiService apiService, UserManager<IdentityUser> userManager, IHttpContextAccessor accessor, ApplicationDbContext context)
         {
+            _emailSender = emailSender;
             _userManager = userManager;
             _accessor = accessor;
             _apiService = apiService;

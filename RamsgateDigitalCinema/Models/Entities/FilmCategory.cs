@@ -12,5 +12,7 @@ namespace RamsgateDigitalCinema.Models.Entities
         public string Description { get; set; }
 
         public bool IsViewable { get; set; }
-    }
+
+        public int OrderPosition { get; set; }
+}
 }

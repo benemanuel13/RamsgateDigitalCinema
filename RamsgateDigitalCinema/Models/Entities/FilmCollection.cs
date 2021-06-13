@@ -27,6 +27,8 @@ namespace RamsgateDigitalCinema.Models.Entities
 
         public virtual List<Film> Films { get; set; }
 
+        public int SortOrder { get; set; }
+
         //[NotMapped]
         //public List<Film> FilteredFilms
         //{

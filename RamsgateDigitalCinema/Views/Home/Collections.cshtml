@@ -1,38 +1,121 @@
-﻿@{
+﻿@model RamsgateDigitalCinema.ViewModels.Home.CollectionsViewModel
+@using RamsgateDigitalCinema.Models.Entities
+@using RamsgateDigitalCinema.Data
+
+@{
     ViewData["Title"] = "Shorts";
+
+    ApplicationDbContext db = ViewBag.Database;
 }
 
 <div class="text-center">
-    <h1 class="display-4">Short Collections</h1>
+    <h3 class="" style="margin-bottom: 20px;">SHORT COLLECTIONS</h3>
 </div>
 
 <div class="container">
-    @foreach(var collection in Model.Collections)
+    @foreach (var collection in Model.Collections)
     {
-        <div class="even row" style="padding: 4px;">
+        string subTitle = "";
+        bool showShortFilm = false;
+
+        string goGold = "";
+        string backGold = "";
+
+        string filmBack = " background-color: black; ";
+        string filmColor = " color: #c59d28; ";
+
+        if (collection.Collection.FilmCollectionID == 8)
+        {
+            continue;
+        }
+
+        if (collection.Collection.FilmCollectionID == 15)
+        {
+            subTitle = "ANCHOR AWARDS COMPETITIONS";
+            showShortFilm = true;
+        }
+        else if (collection.Collection.FilmCollectionID == 1)
+        {
+            subTitle = "WEB SERIES / TV PILOTS";
+            filmBack = " background-color: white; ";
+        }
+        else if (collection.Collection.FilmCollectionID == 19)
+        {
+            goGold = " color: #c59d28; ";
+            backGold = " background-color: white; ";
+        }
+        else if (collection.Collection.FilmCollectionID == 18)
+        {
+            goGold = " color: #c59d28; ";
+            backGold = " background-color: black; ";
+        }
+        else if (collection.Collection.FilmCollectionID == 9)
+        {
+            subTitle = "ON SCREEN COLLECION";
+        }
+        else if (collection.Collection.FilmCollectionID == 3)
+        {
+            subTitle = "YOUTH PROGRAMME";
+        }
+
+        if (subTitle != "")
+        {
+            <div class="even row" style="padding: 4px; @filmBack @filmColor padding: 5px;">
+                <div class="col-md-12">
+                    <h3>@subTitle.ToUpper()</h3>
+                </div>
+            </div>
+
+            if (showShortFilm)
+            {
+                <div class="even row" style="padding: 4px; background-color: white; color: #c59d28; padding: 5px;">
+                    <div class="col-md-12">
+                        <h4>SHORT FILMS</h4>
+                    </div>
+                </div>
+            }
+        }
+
+        <div class="even row" style="padding: 4px;  @(goGold) @(backGold)">
             <div class="col-md-12">
-                    @if(ViewBag.LoggedIn)
+                @if (ViewBag.LoggedIn)
+                {
+                    @if (((List<MemberFilm>)ViewBag.BookedFilms).Where(bf => bf.FilmID == collection.Collection.FilmID).Any())
+                    {
+                        Film film = db.Films.Find(collection.Collection.FilmID);
+
+                        if (film.Showing < (DateTime)ViewBag.CurrentTime)
                         {
-                            <div class="pull-right" style="float: right; vertical-align: text-top; margin-bottom: 20px;">
-                                <button class="btn btn-danger" onclick="bookFilm(@collection.Collection.FilmID)">Book Ticket</button>
-                            </div>
+                            <a style="float: right;" class="btn btn-danger pull-right" href="/Members/ShowFilm/@film.FilmID">Watch Now</a>
                         }
                         else
                         {
-                            <div class="pull-right" style="float: right; vertical-align: text-top; margin-bottom: 20px;">
-                                <a href="/Identity/Account/Login" class="btn btn-danger">Login To Book</a>
-                            </div>
+                            <span style="float: right;" class="btn btn-outline-danger pull-right">Collection Booked</span>
                         }
-                    <h2>@collection.Collection.Name</h2>
+                    }
+                    else
+                    {
+                        <div class="pull-right" style="float: right; margin-bottom: 10px; margin-top: 10px;">
+                            <button class="btn btn-success" onclick="bookFilm(@collection.Collection.FilmID)">Book Ticket</button>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="pull-right" style="float: right; margin-bottom: 10px; margin-top: 10px;">
+                        <a href="/Identity/Account/Login" class="btn btn-success">Login To Book</a>
+                    </div>
+                }
+                <h3>@collection.Collection.Name</h3>
             </div>
         </div>
-        @foreach(var film in collection.Films)
+        @foreach (var film in collection.Films)
         {
             <div class="odd row" style="margin: 4px;">
                 <!--<div class="col-md-2">
                     @if(film.FilmDetails == null)
                     {
-                        <div style="text-align: center;">No Details</div>
+                        <div style="text-align: center;"></div>
                     }
                     else
                     {
@@ -40,26 +123,26 @@
                     }
                 </div>-->
                 <div class="col-md-7">
-                    @if(film.FilmDetails == null)
+                    @if (film.FilmDetails == null)
                     {
-                        <h4>@film.Title</h4>
-                        <!--<div style="text-align: center;">No Details</div>-->
+                        <h4>@film.Title.ToUpper()</h4>
+                        <!--<div style="text-align: center;"></div>-->
                     }
                     else
                     {
-                        <h4>@film.Title</h4>
+                        <h4>@film.Title.ToUpper()</h4>
                         <!--<div>@film.FilmDetails.Synopsis</div>-->
                     }
                 </div>
                 <div class="col-md-5">
-                    @if(film.FilmDetails == null)
+                    @if (film.FilmDetails == null)
                     {
-                        <div style="text-align: center;">No Details</div>
+                        <div style="text-align: center;"></div>
                     }
                     else
                     {
                         <div style="float: right;">
-                            <button class="btn btn-success" onclick="viewDetails(@film.FilmID)">View Details</button>
+                            <button class="btn btn-primary" onclick="viewDetails(@film.FilmID)">View Details</button>
                         </div>
                     }
                 </div>
@@ -71,8 +154,8 @@
 @section Scripts
 {
     <script>
-        $(document).ready(function(){
-            $(".poster").each(function(pos, item){
+        $(document).ready(function () {
+            $(".poster").each(function (pos, item) {
                 var url = "https://www.ramsgatedigitalcinema.co.uk";
                 var poster = $(item).data("poster");
 
@@ -81,14 +164,12 @@
                 $(item).attr('src', finalUrl);
             });
         });
-        
-        function bookFilm(id)
-        {
+
+        function bookFilm(id) {
             setTimeout(window.location.href = '/Members/BookFilm/' + id, 500);
         }
 
-        function viewDetails(id)
-        {
+        function viewDetails(id) {
             setTimeout(window.location.href = '/Home/FilmDetails/?id=' + id + '&fromCollection=true', 500);
         }
     </script>

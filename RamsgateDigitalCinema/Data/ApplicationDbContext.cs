@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using RamsgateDigitalCinema.Models;
 using RamsgateDigitalCinema.Models.Entities;
 using RamsgateDigitalCinema.Models.Localisation;
 using RamsgateDigitalCinema.Models.PayPal;
@@ -35,5 +36,7 @@ namespace RamsgateDigitalCinema.Data
         public DbSet<Donation> Donations { get; set; }
 
         public DbSet<PayPalDetails> PayPalDetails { get; set; }
+
+        public DbSet<Questionnaire> Questionnaires { get; set; }
     }
 }

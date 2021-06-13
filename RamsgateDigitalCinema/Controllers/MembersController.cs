@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Management.Media;
 using Microsoft.Azure.Management.Media.Models;
@@ -12,6 +13,7 @@ using Microsoft.Rest;
 using Microsoft.Rest.Azure.Authentication;
 using Newtonsoft.Json;
 using RamsgateDigitalCinema.Data;
+using RamsgateDigitalCinema.Extensions;
 using RamsgateDigitalCinema.Interfaces;
 using RamsgateDigitalCinema.Models.Entities;
 using RamsgateDigitalCinema.Models.Localisation;
@@ -38,34 +40,29 @@ namespace RamsgateDigitalCinema.Controllers
         private string Issuer = "myIssuer";
         private string Audience = "myAudience";
 
-        public MembersController(IConfiguration config, IApiService apiService, UserManager<IdentityUser> userManager, IHttpContextAccessor accessor, ApplicationDbContext context) : base(config, apiService, userManager, accessor, context)
+        public MembersController(IEmailSender emailSender, IConfiguration config, IApiService apiService, UserManager<IdentityUser> userManager, IHttpContextAccessor accessor, ApplicationDbContext context) : base(emailSender, config, apiService, userManager, accessor, context)
         {
 
         }
 
         public IActionResult Index()
         {
-            if (CurrentMember.Role == MemberRole.User)
-            {
-                return RedirectToAction("NotReady");
-            }
-
             return View();
+        }
+
+        public ActionResult AwardsScreen()
+        {
+            return RedirectToAction("Screen", new { screen = Models.Entities.Screen.Screen1 });
         }
 
         public async Task<IActionResult> Screen(Screen screen)
         {
-            if (CurrentMember.Role == MemberRole.User)
-            {
-                return RedirectToAction("NotReady");
-            }
-
             DateTime currentTime = await GetLocationTime();
 
             ViewBag.CurrentTime = currentTime.ToString("dd/MM/yyyy HH:mm");
 
             var nextFilm = db.Films.Include(f => f.FilmCollection).Include(f => f.FilmCategory).Join(db.FilmDetails, f => f.FilmID, fd => fd.FilmID, (f, fd) => new ScreenFilmDetails() { Film = f, FilmDetails = fd }).Where(
-                    x => x.FilmDetails.Screen == screen && x.Film.Showing > currentTime && x.Film.FilmCategory.IsViewable).OrderBy(x => x.Film.Showing).Where(x => (x.Film.FilmCollectionID == null || x.Film.FilmCollectionID == 0) || x.Film.Title == "Collection").FirstOrDefault();
+                    x => x.FilmDetails.Screen == screen && x.Film.Showing > currentTime && (x.Film.FilmCategory.IsViewable || x.Film.FilmID > 239)).OrderBy(x => x.Film.Showing).Where(x => (x.Film.FilmCollectionID == null || x.Film.FilmCollectionID == 0) || x.Film.Title == "Collection").FirstOrDefault();
 
             if (nextFilm == null)
             { 
@@ -102,7 +99,13 @@ namespace RamsgateDigitalCinema.Controllers
             Country theirCountry = await GetLocation();
             int countryID = db.Countries.Where(c => c.CountryCode == theirCountry.CountryCode).First().CountryID;
 
-            bool blocked = db.BlockedFilms.Where(bf => bf.FilmID == filmID && bf.CountryID == countryID).Any();
+            bool any = db.BlockedFilms.Where(bf => bf.FilmID == filmID).Any();
+            bool blocked = false;
+
+            if (any)
+            {
+                blocked = !db.BlockedFilms.Where(bf => bf.FilmID == filmID && bf.CountryID == countryID).Any();
+            }
 
             return blocked;
         }
@@ -146,11 +149,18 @@ namespace RamsgateDigitalCinema.Controllers
                 return RedirectToAction("NotBooked");
             }
 
+            string token = memberFilm.Token;
+
+            if (token == null)
+            {
+                token = GetMemberFilmToken(memberFilm.FilmID, memberFilm.MemberID);
+            }
+
             ShowFilmViewModel vm = new ShowFilmViewModel() { 
                 FilmID = film.FilmID,
                 MemberID = CurrentMember.MemberID,
                 Film = film,
-                Token = memberFilm.Token,
+                Token = token,
                 Source = film.Source
             };
 
@@ -161,7 +171,7 @@ namespace RamsgateDigitalCinema.Controllers
         }
 
         [HttpPost]
-        public ActionResult PurchaseTicket(int FilmID, decimal Amount)
+        public async Task<ActionResult> PurchaseTicket(int FilmID, decimal Amount)
         {
             if (Amount > 0)
             {
@@ -171,6 +181,77 @@ namespace RamsgateDigitalCinema.Controllers
                 db.SaveChanges();
             }
 
+            Film film = db.Films.Include(f => f.FilmCollection).Where(f => f.FilmID == FilmID).First();
+            int memberID = CurrentMember.MemberID;
+
+            bool booked = BookPurchase(FilmID);
+
+            if (booked)
+            {
+                
+            }
+
+            if (FilmID == 243)
+            {
+                booked = BookPurchase(84);
+            }
+
+            var user = await _userManager.FindByIdAsync(LoggedInUserASPID);
+            string email = user.Email;
+
+            string title = film.Title;
+            string screen = "";
+
+            if (film.FilmDetails != null)
+            {
+                film.FilmDetails.Screen.GetDescription();
+            }
+
+            FilmCollection col = db.FilmCollections.Where(fc => fc.FilmID == film.FilmID).FirstOrDefault();
+
+            if (col != null)
+            {
+                title = col.Name;
+            }
+
+            string message = "<p>Thank you for booking '" + title + "'</p><p>Showing: " + film.Showing.ToString("dddd dd MMMM yyyy HH:mm") + "</p><p>Screen: " + screen + "</p>";
+
+            if (film.FilmID == 243)
+            {
+                message += "<p>Thank you for booking The Opening Night Presentation with the film Adverse and the live Q&A. <br/>Go to www.ramsgatedigitalcinema.co.uk to watch the Presentation and the film.<br/>Here’s the link to join the live Q&A after the screening:<br/>Topic: Q & A Adverse<br/>Time: Jun 3, 2021 09:15 PM London<br/>Doin Zoom Meeting<br/><a href='https://zoom.us/j/96259752381?pwd=K0t5WUFTSHo2bEZYbzEyZWdpRGNWQT09'>https://zoom.us/j/96259752381?pwd=K0t5WUFTSHo2bEZYbzEyZWdpRGNWQT09</a><br/>Meeting ID: 962 5975 2381<br/>Passcode: 943932<br/><br/>Enjoy the Festival<br/>The team at Ramsgate International Film & TV Festival 2021</p>";
+            }
+            else if (film.FilmID == 244)
+            {
+                message += "<p>Thank you for booking the CODUMENTARY – IN CONVERSATION WITH JONATHAN BEALES event with the Screening of the film <br/>First, here’s the link to join the live Q&A after the screening: <br/><br/>Topic: CODumentary Master Class <br /> Time: Jun 4, 2021 10:30 AM London<br/><br /> Join Zoom Meeting<br/><a href = 'https://zoom.us/j/94669303654?pwd=clc4S1FOVXZjOFIzcGl1TWpmd1JpUT09'>https://zoom.us/j/94669303654?pwd=clc4S1FOVXZjOFIzcGl1TWpmd1JpUT09</a><br/><br/>Meeting ID: 946 6930 3654 <br /> Passcode: 325456 <br /><br /> Then when the talk is over, go to www.ramsgatedigitalcinema.co.uk to watch the film.<br /><br /> Enjoy the Festival<Br/><br /> The team at Ramsgate International Film & TV Festival 2021 </p> ";
+            }
+            else if (film.FilmID == 245)
+            {
+                message += "<p>Thank you for booking the HOW TO GET AN AGENT, WHEN YOU’RE AN ACTOR event <br/>Here’s the link on how to join the live talk:<br/><br/>Topic: How To Get An Agent<br/><br/>Time: Jun 4, 2021 03:00 PM London<br/><br/>Join Zoom Meeting <a href='https://zoom.us/j/91342663574?pwd=ZkpkVEx4MERjMnNOdTdsZHoyTXZkQT09'>https://zoom.us/j/91342663574?pwd=ZkpkVEx4MERjMnNOdTdsZHoyTXZkQT09</a><br/><br/>Meeting ID: 913 4266 3574<br/>Passcode: 216213<br/><br/>Enjoy the Festival<br/><br/>The team at Ramsgate International Film & TV Festival 2021<br/></p>";
+            }
+            else if (film.FilmID == 246)
+            {
+                message += "<p>Thank you for booking to attend the NETWORKING PARTY <br/><br/>Here’s the link on how to join the party:<br/>Topic: Networking Party<br/>Time: Jun 4, 2021 06:00 PM London<br/><br/>Join Zoom Meeting<br/><a href='https://zoom.us/j/96017385019?pwd=UEpjRnFXUmFLZjkxR3FVcGFVcFl6dz09'>https://zoom.us/j/96017385019?pwd=UEpjRnFXUmFLZjkxR3FVcGFVcFl6dz09</a><br/><br/>Meeting ID: 960 1738 5019<br/>Passcode: 886708<br/><br/>Enjoy the Festival<br/>The team at Ramsgate International Film & TV Festival 2021<br/></p>";
+            }
+            else if (film.FilmID == 186)
+            {
+                message += "<p>Thank you for booking the screening of PHIL LIGGETT: THE VOICE OF CYCLING and the live Q&A. <br/><br/>Go to www.ramsgatedigitalcinema.co.uk to watch the Film<br/><br/>Then, here’s the link to join the live Q&A after the screening:<br/><br/>Topic: Phil Liggett: the Voice of Cycling Q & A<br/><br/>Time: Jun 5, 2021 08:15 PM London<br/><br/>Join Zoom Meeting<br/><br/><a href='https://zoom.us/j/99575075739?pwd=L1BIbTh5dUZPUXBLVTkyVy81M25kUT09'>https://zoom.us/j/99575075739?pwd=L1BIbTh5dUZPUXBLVTkyVy81M25kUT09</a><br/><br/>Meeting ID: 995 7507 5739<br/>Passcode: 949960</p>";
+            }
+            else if (film.FilmID == 249)
+            {
+                message += "<p>Thank you for booking TONTON MANU the live Q&A. <br/><br/>Go to www.ramsgatedigitalcinema.co.uk to watch the Film<br/><br/>Then, here’s the link to join the live Q&A after the screening:<br/><br/>Topic: Tonton Manu Q & A<br/><br/>Time: Jun 6, 2021 07:15 PM London<br/><br/>Join Zoom Meeting<br/><a href='https://zoom.us/j/99362988485?pwd=cTlERTFFSGhpaExsdmp3d0duRm4vUT09'>https://zoom.us/j/99362988485?pwd=cTlERTFFSGhpaExsdmp3d0duRm4vUT09</a><br/>Meeting ID: 993 6298 8485<br/>Passcode: 402477<br/></p>";
+            }
+            else if (film.FilmID == 250)
+            {
+                message += "<p>Thank you for booking THE AWARDS PRESENTATION  <br/><br/>Here’s the link to join us:<br/><br/>Topic: Awards Presentation<br/>Time: Jun 6, 2021 08:30 PM London<br/><br/>Join Zoom Meeting<br/><a href='https://zoom.us/j/97045349594?pwd=QUFRQk9qWTdhN0cwTFJ0SUJQVU9mdz09'>https://zoom.us/j/97045349594?pwd=QUFRQk9qWTdhN0cwTFJ0SUJQVU9mdz09</a><br/><br/>Meeting ID: 970 4534 9594<br/>Passcode: 523394<br/>Enjoy the Festival<br/><br/>The team at Ramsgate International Film & TV Festival 2021</p>";
+            }
+
+            await _emailSender.SendEmailAsync(email, "Booked Film", message);
+
+            return Content("SUCCESS");
+        }
+
+        private bool BookPurchase(int FilmID)
+        {
             int memberID = CurrentMember.MemberID;
 
             Film film = db.Films.Include(f => f.FilmCollection).Where(f => f.FilmID == FilmID).First();
@@ -184,9 +265,15 @@ namespace RamsgateDigitalCinema.Controllers
 
             MemberFilm memberFilm = db.MemberFilms.Where(mf => mf.FilmID == FilmID && mf.MemberID == memberID).FirstOrDefault();
 
-            if (memberFilm != null)
+            if (memberFilm != null && memberFilm.Token != null)
             {
-                return Content("SUCCESS");
+                return true;
+            }
+
+            if (memberFilm != null && memberFilm.Token == null)
+            {
+                db.MemberFilms.Remove(memberFilm);
+                db.SaveChanges();
             }
 
             MemberFilm mf = new MemberFilm() { FilmID = FilmID, MemberID = memberID };
@@ -194,18 +281,28 @@ namespace RamsgateDigitalCinema.Controllers
             db.MemberFilms.Add(mf);
             db.SaveChanges();
 
-            GetMemberFilmToken(FilmID, memberID);
+            try
+            {
+                GetMemberFilmToken(FilmID, memberID);
+            }
+            catch { }
 
-            return Content("SUCCESS");
+            return false;
         }
-
         public async Task<ActionResult> BookFilm(int id)
         {
-            var mf = db.MemberFilms.Where(m => m.FilmID == id && m.MemberID == CurrentMember.MemberID).Any();
+            var mf = db.MemberFilms.Where(m => m.FilmID == id && m.MemberID == CurrentMember.MemberID && m.Token != null).Any();
 
             if (mf)
             {
                 return RedirectToAction("AlreadyBooked", "Members");
+            }
+
+            bool blocked = await IsBlocked(id);
+
+            if (blocked)
+            {
+                return RedirectToAction("GeoBlocked");
             }
 
             Film film = db.Films.Find(id);
@@ -237,6 +334,15 @@ namespace RamsgateDigitalCinema.Controllers
             }
 
             ViewBag.CurrentTime = await GetLocationTime();
+
+            if (film.FilmID == 242 || film.FilmID == 244 || film.FilmID == 245 || film.FilmID == 248)
+            {
+                ViewBag.Fiver = true;
+            }
+            else
+            {
+                ViewBag.Fiver = false;
+            }
 
             return View(vm);
         }
@@ -316,6 +422,21 @@ namespace RamsgateDigitalCinema.Controllers
             {
                 return new PayPalToken() { Access_Token = "Failed" };
             }
+        }
+
+        public async Task<ActionResult> BookedFilms()
+        {
+            var films = db.MemberFilms.Join(db.Films, mf => mf.FilmID, f => f.FilmID, (mf, f) => new { MemberFilm = mf, Film = f }).Where(x => x.MemberFilm.MemberID == CurrentMember.MemberID && x.Film.Showing > DateTime.Parse("2021-06-10"))
+                .Select(x => new BookedFilmViewModel() { 
+                    FilmID = x.Film.FilmID,
+                    Title = db.FilmCollections.Where(fc => fc.FilmID == x.Film.FilmID).FirstOrDefault() == null ? x.Film.Title : db.FilmCollections.Where(fc => fc.FilmID == x.Film.FilmID).FirstOrDefault().Name,
+                    Showing = x.Film.Showing,
+                    IsExtra = x.Film.FilmCategoryID == 26
+                }).OrderBy(x => x.Showing).ToList();
+
+            ViewBag.CurrentTime = await GetLocationTime();
+
+            return View(films);
         }
 
         #region SetSources (defunct)
@@ -469,7 +590,7 @@ namespace RamsgateDigitalCinema.Controllers
                 claims: claims,
                 notBefore: DateTime.Now.AddDays(-1),
                 //expires: film.Showing.AddDays(2),
-                expires: DateTime.Now.AddDays(2),
+                expires: DateTime.Now.AddDays(7),
                 signingCredentials: cred);
 
             JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
@@ -477,5 +598,31 @@ namespace RamsgateDigitalCinema.Controllers
             return handler.WriteToken(token);
         }
         #endregion
+
+        public ActionResult Questionnaire(int filmID)
+        {
+            QuestionnaireViewModel vm = new QuestionnaireViewModel() { 
+                MemberID = CurrentMember.MemberID,
+                FilmID = filmID,
+                IsCollection = false
+            };
+
+            var collection = db.FilmCollections.Where(fc => fc.FilmID == filmID).FirstOrDefault();
+
+            if (collection != null)
+            {
+                vm.IsCollection = true;
+                vm.CollectionFilms = db.Films.Where(f => f.FilmCollectionID == collection.FilmCollectionID).ToList();
+            }
+
+            return View(vm);
+        }
+
+        [HttpPost]
+        public ActionResult Questionnaire(QuestionnaireViewModel vm)
+        {
+
+            return View();
+        }
     }
 }

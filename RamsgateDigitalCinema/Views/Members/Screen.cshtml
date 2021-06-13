@@ -34,7 +34,8 @@
         var currentTime = moment('@ViewBag.CurrentTime', "DD/MM/YYYY HH:mm")
 
         $(document).ready(function(){
-            var screenimg = "/img/Screen" + "@Model.Screen.ToString()" + ".png";
+            //var screenimg = "/img/Screen" + "@Model.Screen.ToString()" + ".png";
+            var screenimg = "/img/Screen0.png";
             $('#screenImg').attr("src", screenimg);
 
             var poster = "https://www.ramsgatedigitalcinema.co.uk" + "@Model.FilmDetails.PosterUrl";
@@ -68,7 +69,7 @@
             }
 
             var label = "hrs.";
-            
+
             if (hrs === 1) {
                 label = "hr.";
             }

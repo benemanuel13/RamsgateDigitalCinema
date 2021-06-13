@@ -2,6 +2,15 @@
 
 @{
     string introVideo = "https://www.ramsgatedigitalcinema.co.uk/video/Intro.mp4";
+
+    ViewData["Title"] = "Show Film";
+
+    string next = "/Members/Questionnaire?filmID=" + Model.FilmID;
+
+    if (Model.FilmID == 243)
+    {
+        next = "/Members/ShowFilm/84";
+    }
 }
 
 <link href="//amp.azure.net/libs/amp/2.3.4/skins/amp-default/azuremediaplayer.min.css" rel="stylesheet">
@@ -55,9 +64,10 @@
         logo: { targetUrl: "https://www.ramsgatedigitalcinema.co.uk/favicon-32x32.png" }
     }
 
-    function goQ(e) {
-        window.location.href = "/Members/Questionairre?FilmID=@(Model.FilmID)&MemberID=@(Model.MemberID)";
+    function goQ() {
+        setTimeout(window.location.href = "@(next)", 500);
     }
+
 
     function startFilm() {
         var video = document.getElementById("azuremediaplayer");
@@ -65,8 +75,8 @@
 
         myPlayer = amp("azuremediaplayer", myOptions);
 
-        myPlayer.addEventListener('ended', function(data){ alert("Finished"); });
-        myPlayer.addEventListener('error', function(error){ alert(error); });
+        myPlayer.addEventListener('ended', function (data) { goQ(); });
+        myPlayer.addEventListener('error', function(error){ alert("An Error Has Occured.  Please refresh the page to try again.  If the problem persists please contact admin@ramsgatedigitalcinema.co.uk who will try and get the film to you."); });
 
         myPlayer.src([
             {

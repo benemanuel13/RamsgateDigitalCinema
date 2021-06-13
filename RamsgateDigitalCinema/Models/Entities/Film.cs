@@ -9,9 +9,9 @@ namespace RamsgateDigitalCinema.Models.Entities
 {
     public enum Rating
     {
-        [Description("Universal")]
+        [Description("U")]
         Universal,
-        [Description("Parental Guidence")]
+        [Description("PG")]
         ParentalGuidence,
         [Description("12A")]
         X12A,

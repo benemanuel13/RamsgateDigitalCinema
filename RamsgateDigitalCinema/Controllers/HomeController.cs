@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
@@ -23,7 +24,7 @@ namespace RamsgateDigitalCinema.Controllers
 {
     public class HomeController : BaseController
     {
-        public HomeController(IConfiguration config, IApiService apiService, UserManager<IdentityUser> userManager, IHttpContextAccessor accessor, ApplicationDbContext context): base(config, apiService, userManager, accessor, context)
+        public HomeController(IEmailSender emailSender, IConfiguration config, IApiService apiService, UserManager<IdentityUser> userManager, IHttpContextAccessor accessor, ApplicationDbContext context): base(emailSender, config, apiService, userManager, accessor, context)
         {
         
         }
@@ -41,7 +42,7 @@ namespace RamsgateDigitalCinema.Controllers
                 member.LastLoggedIn = DateTime.Now;
                 db.SaveChanges();
 
-                return RedirectToAction("Index", "Members");
+                //return RedirectToAction("Index", "Members");
             }
 
             if (string.IsNullOrEmpty(HttpContext.Session.GetString("ShownIntro")))
@@ -56,7 +57,7 @@ namespace RamsgateDigitalCinema.Controllers
             {
                 Screen screen = (Screen)i;
 
-                var film = db.Films.Join(db.FilmDetails, f => f.FilmID, fd => fd.FilmID, (f, fd) => new { Film = f, FilmDetails = fd }).Where(f => f.Film.Showing > theTime && f.FilmDetails.Screen == screen).OrderBy(f => f.Film.Showing).ThenBy(f => f.Film.FilmID).FirstOrDefault();
+                var film = db.Films.Join(db.FilmDetails.Include(fd => fd.StillUrls), f => f.FilmID, fd => fd.FilmID, (f, fd) => new { Film = f, FilmDetails = fd }).Where(f => f.Film.Showing > theTime && f.FilmDetails.Screen == screen && f.Film.FilmCollectionID == null).OrderBy(f => f.Film.Showing).ThenBy(f => f.Film.FilmID).FirstOrDefault();
 
                 if (film != null)
                 {
@@ -68,7 +69,8 @@ namespace RamsgateDigitalCinema.Controllers
                         Rating = film.Film.Rating.GetDescription(),
                         Time = film.Film.Showing.ToString("HH:mm"),
                         Date = film.Film.Showing.ToString("dddd dd MMMM"),
-                        PosterUrl = film.FilmDetails.PosterUrl
+                        PosterUrl = film.FilmDetails.PosterUrl,
+                        FilmDetails = film.FilmDetails
                     });
                 }
                 else
@@ -167,11 +169,54 @@ namespace RamsgateDigitalCinema.Controllers
             return View(col);
         }
 
-        public IActionResult Films()
+        public async Task<ActionResult> AwardsFilms()
+        {
+            bool loggedIn = CurrentMember != null;
+            ViewBag.LoggedIn = loggedIn;
+
+            if (loggedIn)
+            {
+                var bookedFilms = db.MemberFilms.Where(mf => mf.MemberID == CurrentMember.MemberID).ToList();
+                ViewBag.BookedFilms = bookedFilms;
+            }
+
+            ViewBag.CurrentTime = await GetLocationTime();
+
+            CollectionsViewModel vm = new CollectionsViewModel();
+
+            var collections = db.FilmCollections.ToList();
+
+            foreach (var col in collections)
+            {
+                Film film = db.Films.Find(col.FilmID);
+
+                col.Film = film;
+            }
+
+            var colles = collections.Where(c => c.Film.Showing > DateTime.Parse("2021-06-10")).OrderBy(fc => fc.Name).OrderBy(fc => fc.SortOrder).ToList().Select(fc => new CollectionViewModel()
+            {
+                Collection = fc,
+                Films = db.Films.Where(f => fc.FilmCollectionID == f.FilmCollectionID && f.Title != "Collection").ToList()
+            }).ToList();
+
+            foreach (var col in colles)
+            {
+                foreach (var film in col.Films)
+                {
+                    film.FilmDetails = db.FilmDetails.Where(fd => fd.FilmID == film.FilmID).FirstOrDefault();
+                }
+            }
+
+            vm.Collections = colles;
+
+            return View(vm);
+        }
+
+        public async Task<IActionResult> Films()
         {
             FilmsViewModel vm = new FilmsViewModel();
 
-            var categories = db.FilmCategories.OrderBy(fc => fc.Description).Where(fc => fc.IsViewable && fc.FilmCategoryID != 8).ToList().Select(fc => new FilmCategoryViewModel()
+            var categories = db.FilmCategories.OrderBy(fc => fc.Description).Where(fc => fc.IsViewable && fc.FilmCategoryID != 8).OrderBy(fc => fc.OrderPosition).ToList().Select(fc => new FilmCategoryViewModel()
             {
                 Category = fc,
                 Films = db.Films.Where(f => fc.FilmCategoryID == f.FilmCategoryID && f.FilmCollectionID == null).OrderBy(f => f.Showing).ToList()
@@ -187,16 +232,25 @@ namespace RamsgateDigitalCinema.Controllers
 
             vm.Categories = categories;
 
-            ViewBag.LoggedIn = CurrentMember != null;
+            bool loggedIn = CurrentMember != null;
+            ViewBag.LoggedIn = loggedIn;
+
+            if (loggedIn)
+            {
+                var bookedFilms = db.MemberFilms.Where(mf => mf.MemberID == CurrentMember.MemberID).ToList();
+                ViewBag.BookedFilms = bookedFilms;
+            }
+
+            ViewBag.CurrentTime = await GetLocationTime();
 
             return View(vm);
         }
 
-        public IActionResult Collections()
+        public async Task<IActionResult> Collections()
         {
             CollectionsViewModel vm = new CollectionsViewModel();
 
-            var collections = db.FilmCollections.OrderBy(fc => fc.Name).ToList().Select(fc => new CollectionViewModel()
+            var collections = db.FilmCollections.OrderBy(fc => fc.Name).OrderBy(fc => fc.SortOrder).ToList().Select(fc => new CollectionViewModel()
             {
                 Collection = fc,
                 Films = db.Films.Where(f => fc.FilmCollectionID == f.FilmCollectionID && f.Title != "Collection").ToList()
@@ -212,9 +266,237 @@ namespace RamsgateDigitalCinema.Controllers
 
             vm.Collections = collections;
 
-            ViewBag.LoggedIn = CurrentMember != null;
+            bool loggedIn = CurrentMember != null;
+            ViewBag.LoggedIn = loggedIn;
+
+            if (loggedIn)
+            {
+                var bookedFilms = db.MemberFilms.Where(mf => mf.MemberID == CurrentMember.MemberID).ToList();
+                ViewBag.BookedFilms = bookedFilms;
+            }
+
+            ViewBag.CurrentTime = await GetLocationTime();
+
+            ViewBag.Database = db;
 
             return View(vm);
+        }
+
+        public ActionResult Events()
+        {
+            return RedirectToAction("Extras");
+        }
+
+        public async Task<ActionResult> Extras()
+        {
+            bool loggedIn = CurrentMember != null;
+            ViewBag.LoggedIn = loggedIn;
+
+            if (loggedIn)
+            {
+                var bookedFilms = db.MemberFilms.Where(mf => mf.MemberID == CurrentMember.MemberID).ToList();
+                ViewBag.BookedFilms = bookedFilms;
+            }
+
+            ExtrasViewModel vm = new ExtrasViewModel() { 
+                WhiteTiger = db.Films.Find(240),
+                Opening = db.Films.Find(243),
+                CODumentary = db.Films.Find(241),
+                CODumentaryConverse = db.Films.Find(244),
+                Agent = db.Films.Find(245),
+                VFX = db.Films.Find(242),
+                Network = db.Films.Find(246),
+                Kajaki = db.Films.Find(247),
+                African = db.Films.Find(248),
+                Cycling = db.Films.Find(186),
+                Tonton = db.Films.Find(249),
+                Awards = db.Films.Find(250)
+            };
+
+            vm.WhiteTiger.FilmDetails = db.FilmDetails.Where(fd => fd.FilmID == 240).FirstOrDefault();
+            vm.Kajaki.FilmDetails = db.FilmDetails.Where(fd => fd.FilmID == 247).FirstOrDefault();
+
+            ViewBag.CurrentTime = await GetLocationTime();
+
+            return View(vm);
+        }
+
+        public async  Task<ActionResult> AwardsExtras()
+        {
+            AwardsExtrasViewModel vm = new AwardsExtrasViewModel() {
+                Saturday = db.Films.Where(f => f.FilmCategoryID == 26 && f.Showing > DateTime.Parse("2021-06-19 00:00") && f.Showing < DateTime.Parse("2021-06-19 23:59")).ToList(),
+                Sunday = db.Films.Where(f => f.FilmCategoryID == 26 && f.Showing > DateTime.Parse("2021-06-20 00:00") && f.Showing < DateTime.Parse("2021-06-20 23:59")).ToList()
+            };
+
+            bool loggedIn = CurrentMember != null;
+            ViewBag.LoggedIn = loggedIn;
+
+            if (loggedIn)
+            {
+                var bookedFilms = db.MemberFilms.Where(mf => mf.MemberID == CurrentMember.MemberID).ToList();
+                ViewBag.BookedFilms = bookedFilms;
+            }
+
+            ViewBag.CurrentTime = await GetLocationTime();
+
+            return View(vm);
+        }
+
+        public ActionResult Questionnaire(int filmID, int memberID)
+        {
+            MemberFilm mf = db.MemberFilms.Where(x => x.FilmID == filmID && x.MemberID == memberID).FirstOrDefault();
+            
+            Film film = db.Films.Find(filmID);
+            Member member = db.Members.Find(memberID);
+
+            var aspUser = db.Users.Find(member.ASPID);
+
+            bool isCollection = false;
+
+            if (film.Title == "Collection")
+            {
+                isCollection = true;
+            }
+
+            Questionnaire q = new Questionnaire() { 
+                FilmID = filmID,
+                MemberID = memberID,
+                IsCollection = isCollection,
+                FilmTitle = film.Title,
+                Email = aspUser.Email
+            };
+
+            if (isCollection)
+            {
+                var coll = db.FilmCollections.Where(c => c.FilmID == filmID).First();
+                var films = db.Films.Where(f => f.FilmCollectionID == coll.FilmCollectionID && f.FilmID != filmID).ToList();
+
+                q.FilmTitle = coll.Name;
+                q.Films = films;
+            }
+
+            List<ScaleViewModel> scales = new List<ScaleViewModel>();
+
+            for (int i = 1; i < 11; i++)
+            {
+                scales.Add(new ScaleViewModel() { 
+                    Value = i,
+                    Text = i.ToString()
+                });
+            }
+
+            ViewBag.Scales = scales;
+
+            List<ScaleViewModel> from = new List<ScaleViewModel>() {
+                new ScaleViewModel(){ Value = 0, Text = "Ramsgate" },
+                new ScaleViewModel(){ Value = 1, Text = "Kent" },
+                new ScaleViewModel(){ Value = 2, Text = "UK" },
+                new ScaleViewModel(){ Value = 3, Text = "Europe" },
+                new ScaleViewModel(){ Value = 4, Text = "Americas" },
+                new ScaleViewModel(){ Value = 5, Text = "Asia" },
+                new ScaleViewModel(){ Value = 6, Text = "Africa" },
+                new ScaleViewModel(){ Value = 7, Text = "Oceania" }
+            };
+
+            ViewBag.Locations = from;
+
+            List<ScaleViewModel> gender = new List<ScaleViewModel>() {
+                new ScaleViewModel(){ Value = 0, Text = "Male" },
+                new ScaleViewModel(){ Value = 1, Text = "Female" },
+                new ScaleViewModel(){ Value = 2, Text = "Transgender" },
+                new ScaleViewModel(){ Value = 3, Text = "Non-binary" },
+                new ScaleViewModel(){ Value = 4, Text = "Prefer no answer" }
+            };
+
+            ViewBag.Gender = gender;
+
+            List<ScaleViewModel> ages = new List<ScaleViewModel>() {
+                new ScaleViewModel(){ Value = 0, Text = "8 to 14" },
+                new ScaleViewModel(){ Value = 1, Text = "15 to 18" },
+                new ScaleViewModel(){ Value = 2, Text = "19 to 25" },
+                new ScaleViewModel(){ Value = 3, Text = "26 to 45" },
+                new ScaleViewModel(){ Value = 4, Text = "46 to 65" },
+                new ScaleViewModel(){ Value = 4, Text = "Over 65" }
+            };
+
+            ViewBag.Ages = ages;
+
+            return View(q);
+        }
+
+        [HttpPost]
+        public ActionResult Questionnaire(Questionnaire q)
+        {
+            db.Questionnaires.Add(q);
+            db.SaveChanges();
+
+            return RedirectToAction("ThankYou");
+        }
+
+        public ActionResult ThankYou()
+        {
+            
+            return View();
+        }
+
+        public ActionResult Unsubscribe(string code)
+        {
+            var member = db.Members.Where(m => m.UnsubscribeCode == code).FirstOrDefault();
+
+            if (member != null)
+            {
+                member.DontEmail = true;
+                db.SaveChanges();
+            }
+
+            return View();
+        }
+
+        public async Task<ActionResult> SendQuestions()
+        {
+            var films = db.MemberFilms.Where(mf => mf.Token != null).ToList();
+
+            int count = 0;
+
+            foreach (var film in films)
+            {
+                var member = db.Members.Find(film.MemberID);
+
+                if (member.DontEmail)
+                {
+                    continue;
+                }
+
+                count++;
+
+                var thefilm = db.Films.Find(film.FilmID);
+                var email = db.Users.Find(member.ASPID).Email;
+
+                bool isCollection = false;
+
+                if (thefilm.Title == "Collection")
+                {
+                    isCollection = true;
+                }
+
+                string title = thefilm.Title;
+
+                if (isCollection)
+                {
+                    var coll = db.FilmCollections.Where(c => c.FilmID == film.FilmID).First();
+
+                    title = coll.Name;
+                }
+
+                string message = "<p>QUESTIONAIRRE</p>";
+                message += "<p>Would you kindly fill in a questionairre about " + title + "</p>";
+                message += "<p>Use this <a href='https://www.ramsgatedigitalcinema.co.uk/Home/Questionnaire?filmID=" + film.FilmID + "&memberID=" + film.MemberID + "'>LINK</a> to go to questionnaire</p>";
+                message += "<p>Use this <a href='https://www.ramsgatedigitalcinema.co.uk/Home/Unsubscribe?code=" + member.UnsubscribeCode + "'>LINK</a> to unscribe from out emails.</p>";
+
+                await _emailSender.SendEmailAsync(email, "Questionairre", message);
+            }
+
+            return Content("OK: " + count.ToString());
         }
     }
 }
